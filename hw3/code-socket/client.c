@@ -19,13 +19,14 @@ int main(int argc, const char *argv[])
 
 	/* [C1: point 1]
 	 * Explain following in here.
+	 *
+	 * The following three lines are used to create a socket.
+	 * AF_INET means IPv4 protocol.
+	 * SOCK_STREAM means TCP protocol.
+	 * 0 means the default protocol.
+	 * The if condition is used to check if the socket is created 
+	 * successfully
 	 */
-	// The following three lines are used to create a socket.
-	// AF_INET means IPv4 protocol.
-	// SOCK_STREAM means TCP protocol.
-	// 0 means the default protocol.
-	// The if condition is used to check if the socket is created 
-	// successfully
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		printf("\n Socket creation error \n");
 		return -1;
@@ -33,19 +34,32 @@ int main(int argc, const char *argv[])
 
 	/* [C2: point 1]
 	 * Explain following in here.
-	 */
-	// The following three lines are used to set the server address
-	// the first line is used to set the size of the server address
-	// the second line is used to set the family of the server address
-	// we use IPv4 protocol, so we use AF_INET
-	// the third line is used to set the port of the server address
-	// we use port 5984
+	 *
+	 * the first line is used to set the structure of the server 
+	 * address of the server to all to all zeros
+	 * the second line is used to set the family of the server 
+	 * address we use IPv4 protocol, so we use AF_INET
+	 * the third line is used to set the port of the server address
+	 * we use port 5984
+	 * we use htons (host to network short) to convert the port 
+	 * number from host byte order to network byte order. This conversion 
+	 * is necessary because different computer architectures may use 
+	 * different byte orders, and network protocols typically use a 
+	 * specific order (big-endian)
+	 * /
 	memset(&serv_addr, '0', sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port = htons(PORT);
 
 	/* [C3: point 1]
 	 * Explain following in here.
+	 *
+	 * This line converts the human-readable IP address "127.0.0.1" to a 
+	 * binary format and assigns it to serv_addr.sin_addr. The function 
+	 * inet_pton (presentation to network) is used for this purpose. It 
+	 * returns 1 on success, 0 if the input string is not a valid IP address,
+	 * and -1 if an error occurs.
+	 * 
 	 */
 	if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
 		printf("\nInvalid address/ Address not supported \n");
@@ -76,6 +90,8 @@ int main(int argc, const char *argv[])
 	// the first parameter is the socket
 	// the second parameter is the message
 	// the third parameter is the size of the message
+	// the fourth parameter is the flag which in this case
+	// is set to 0 meaning no flags
 	send(sock, hello, strlen(hello), 0);
 	printf("Hello message sent\n");
 
