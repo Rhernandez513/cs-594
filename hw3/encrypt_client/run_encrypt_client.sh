@@ -1,1 +1,1 @@
-./encrypt -s "your_string" -k your_key
+./encrypt_client -s "hello" -k 1
