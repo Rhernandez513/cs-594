@@ -1,0 +1,40 @@
+diff --git a/hw3/net/socket.c b/hw3/net/socket.c
+index 734dbe4..551528f 100644
+--- a/hw3/net/socket.c
++++ b/hw3/net/socket.c
+@@ -1900,6 +1900,8 @@ struct file *do_accept(struct file *file, unsigned file_flags,
+ 	struct sockaddr_storage address;
+ 	const struct proto_ops *ops;
+ 
++    printk(KERN_INFO "Message: %s\n", " In do_accept - Hello CS594 from Linux Kernel Space\0");
++
+ 	sock = sock_from_file(file);
+ 	if (!sock)
+ 		return ERR_PTR(-ENOTSOCK);
+@@ -1956,6 +1958,8 @@ static int __sys_accept4_file(struct file *file, struct sockaddr __user *upeer_s
+ 	struct file *newfile;
+ 	int newfd;
+ 
++    printk(KERN_INFO "Message: %s\n", " In __sys_accept4_file - Hello CS594 from Linux Kernel Space\0");
++
+ 	if (flags & ~(SOCK_CLOEXEC | SOCK_NONBLOCK))
+ 		return -EINVAL;
+ 
+@@ -1994,6 +1998,8 @@ int __sys_accept4(int fd, struct sockaddr __user *upeer_sockaddr,
+ 	int ret = -EBADF;
+ 	struct fd f;
+ 
++    printk(KERN_INFO "Message: %s\n", " In __sys_accept4 - Hello CS594 from Linux Kernel Space\0");
++
+ 	f = fdget(fd);
+ 	if (f.file) {
+ 		ret = __sys_accept4_file(f.file, upeer_sockaddr,
+@@ -3582,7 +3588,7 @@ int kernel_accept(struct socket *sock, struct socket **newsock, int flags)
+ 	const struct proto_ops *ops = READ_ONCE(sock->ops);
+ 	int err;
+ 
+-    printk(KERN_INFO "Message: %s\n", "Hello CS594 from Linux Kernel Space\0");
++    printk(KERN_INFO "Message: %s\n", " In kernel_accept - Hello CS594 from Linux Kernel Space\0");
+ 
+ 	err = sock_create_lite(sk->sk_family, sk->sk_type, sk->sk_protocol,
+ 			       newsock);
