@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-extern int sys_s2_encrypt(char *str, int key);
-
 int main(int argc, char *argv[]) {
     char *str = NULL;
     int key = 0;
@@ -28,7 +26,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    int result = sys_s2_encrypt(str, key);
+    int SYSCALL_NUM = 451;
+    int result = syscall(SYSCALL_NUM, str, key);
 
     printf("Result of sys_s2_encrypt: %d\n", result);
 
