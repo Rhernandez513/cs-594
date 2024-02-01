@@ -1,3 +1,5 @@
+cs-594_key.pem
+
 # Created by https://www.toptal.com/developers/gitignore/api/linux,vi,macos,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,vi,macos,python
 
@@ -223,4 +225,4 @@ pyrightconfig.json
 #!! ERROR: vi is undefined. Use list command to see defined gitignore types !!#
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,vi,macos,python
-n
+
