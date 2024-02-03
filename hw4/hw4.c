@@ -217,16 +217,28 @@ static void __exit hw4_exit(void)
 {
 	/* [X20: point 1]
 	 * Explain following in here.
+	 * 
+	 * 
+	 * This seems to be the modules exit function 
+	 * and it doesn't seem to do anything
+	 * other than serve as a hook into the module itself
+	 * for any last minute cleanup or resource release
 	 */
 	return;
 }
 
 /* [X21: point 1]
  * Explain following in here.
+ * 
+ * This is a hook into the Linux Kernel Module API that allows
+ * the system to calls the module's initialization function
  */
 module_init(hw4_init);
 
 /* [X22: point 1]
  * Explain following in here.
+ * 
+ * This is a hook into the Linux Kernel Module API that allows
+ * the system to calls the module's exit function
  */
 module_exit(hw4_exit);
