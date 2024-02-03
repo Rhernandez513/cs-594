@@ -187,7 +187,13 @@ static int __init hw4_init(void)
 	int err = 0;
 
 	/* [X16: point 1]
-	 * Explain following in here.
+	 *
+	 * This is a linux kernel convention for logging
+	 * guarded by a check for the int_str parameter
+	 * which is a parameter to the module's Linux Kernel API
+	 * 
+	 * If the parameter is not present the module will exit
+	 * after printing a message
 	 */
 	if (!int_str) {
 		printk(KERN_INFO "Missing \'int_str\' parameter, exiting\n");
@@ -195,7 +201,10 @@ static int __init hw4_init(void)
 	}
 
 	/* [X17: point 1]
-	 * Explain following in here.
+	 * 
+	 * This is the a call to the module's input parameter parser
+	 * Whwere if there is an error condition it will return the error
+	 * triggering the module's exit function
 	 */
 	err = parse_params();
 	if (err)
@@ -203,11 +212,18 @@ static int __init hw4_init(void)
 
 	/* [X18: point 1]
 	 * Explain following in here.
+	 * 
+	 * This is the modules primary function that is called after 
+	 * initialization completes, in this instance the module calls
+	 * all of the tests that it has registered
+	 * 
 	 */
 	run_tests();
 out:
 	/* [X19: point 1]
-	 * Explain following in here.
+	 * 
+	 * This is the exit path of the module if there is an error
+	 * it will call the cleanup function and return the error
 	 */
 	cleanup();
 	return err;
