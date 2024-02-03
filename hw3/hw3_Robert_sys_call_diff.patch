@@ -1,0 +1,58 @@
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index c84d12608cd2..966d78225950 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -372,6 +372,7 @@
+ 448	common	process_mrelease	sys_process_mrelease
+ 449	common	futex_waitv		sys_futex_waitv
+ 450	common	set_mempolicy_home_node	sys_set_mempolicy_home_node
++451	common	sys_s2_encrypt		sys_s2_encrypt
+ 
+ #
+ # Due to a historical design error, certain syscalls are numbered differently
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 5fd54bf0e886..cb748fc27ed2 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -272,6 +272,41 @@ SYSCALL_DEFINE3(setpriority, int, which, int, who, int, niceval)
+ 	return error;
+ }
+ 
++
++
++/*
++ *  CS594
++ */
++
++SYSCALL_DEFINE2(s2_encrypt, char __user *, str, int, key)
++{
++	int len = sizeof(str);
++
++	char * buffer = kmalloc(265, GFP_KERNEL);
++	if(!copy_from_user(buffer, str, len)) {
++		if (key < 1 || key > 5) {
++			return -EINVAL;
++		}
++
++		// Iterate through each character in the string
++		for (int i = 0; buffer[i] != '\0'; ++i) {
++			// Add encryption key to the ASCII value of the character
++			buffer[i] = buffer[i] + key;
++		}
++
++		// print the encrypted buffering
++		printk(KERN_INFO "CS594\n");
++		printk(KERN_INFO "Message: In sys_s2_encript - %s\n", buffer);
++
++		kfree(buffer);
++
++		return 0;
++	}
++	printk(KERN_INFO "CS594: Error condition on copy_from_user\n");
++
++	return 1;
++}
++
+ /*
+  * Ugh. To avoid negative return values, "getpriority()" will
+  * not return the normal nice-value, but a negated value that
