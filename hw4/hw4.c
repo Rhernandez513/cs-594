@@ -90,6 +90,10 @@ static void test_linked_list(void)
 	/* [X7: point 5]
 	 * Print out value of all entries in mylist.
 	 */
+	struct entry *entry_instance;
+	list_for_each_entry(entry_instance, &mylist, list) {
+		printk(KERN_INFO "val = %d\n", entry_instance.val);
+	}
 }
 
 
@@ -98,6 +102,13 @@ static void destroy_linked_list_and_free(void)
 	/* [X8: point 5]
 	 * Free all entries in mylist.
 	 */
+	struct entry *next;
+	struct entry *entry_instance;
+
+	list_for_each_entry_sace(entry_insrance, next, &mylist, list) {
+		list_del(&entry_instance.list);
+		kfree(entry_instance);
+	}
 }
 
 
