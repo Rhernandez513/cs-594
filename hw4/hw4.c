@@ -157,15 +157,25 @@ static int parse_params(void)
 static void run_tests(void)
 {
 	/* [X14: point 1]
-	 * Explain following in here.
+	 * 
+	 * This reads as though it's intent is simple to 
+	 * run the functions prefixed with test_
 	 */
 	test_linked_list();
+
 }
 
 static void cleanup(void)
 {
 	/* [X15: point 1]
 	 * Explain following in here.
+	 * 
+	 * 
+	 * This is a linux kernel convention for logging
+	 * 
+	 * Followed by a call to destroy_linked_list_and_free
+	 * which by the function name of cleanup, seems to be 
+	 * the modules memory and resource release function
 	 */
 	printk(KERN_INFO "\nCleaning up...\n");
 
