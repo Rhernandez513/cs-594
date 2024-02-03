@@ -119,7 +119,17 @@ static int parse_params(void)
 
 
 	/* [X9: point 1]
-	 * Explain following in here.
+	 * 
+	 * This is part of the Linux Kernel API that returns a new string
+	 * pointer that is a duplicate of the string passed to it
+	 * It also accepts a flag, in this fase GFP_KERNEL, which is a
+	 * typically used GFP_MASK flag that is used to specify the type of
+	 * memory allocation allowing the allowcation to sleep if necessary
+	 * 
+	 * if the allocation and duplication fails, we return -ENOMEM
+	 * 
+	 * the the allocation and duplication is successful, we 
+	 * assign the pointer to the orig variable defined earlier in the function
 	 */
 	params = kstrdup(int_str, GFP_KERNEL);
 	if (!params)
@@ -128,19 +138,49 @@ static int parse_params(void)
 
 	/* [X10: point 1]
 	 * Explain following in here.
+	 * 
+	 * strsep is a linux kernel API function that is used to tokenize
+	 * a string. It takes a pointer to a string and a delimiter and returns
+	 * the next token in the string. It also replaces the delimiter with a null
+	 * 
+	 * If the end of the string is reached, it returns NULL
+	 * 
+	 * So here we loop while the pointer returned is not NULL
 	 */
 	while ((p = strsep(&params, ",")) != NULL) {
 		if (!*p)
 			continue;
 		/* [X11: point 1]
-		 * Explain following in here.
+		 * 
+		 * the above if statement checks if the p is pointing to a null
+		 * if it is, it skips to the end of the loop and allows the
+		 * while check to find a null and exit the loop
+		 * 
+		 * The below statement converts the string to an integer
+		 * using the Linux Kernel API function kstrtoint
+		 * 
+		 * Here p is the pointer to the string, provided by the strsep function
+		 * 0 is instruction to the function to autodetect the base of the number
+		 * numbers beginning with 0x are treated as hex, 0 as octal, 
+		 * and 1-9 as decimal
+		 * 
+		 * As val is an interget value, &val
+		 * is the pointer to the integer that the function manipulate
+		 * and return
+		 * 
+		 * If the kstrtoint function fails, it returns an error code
+		 * 
+		 * In the case that the err is not null, we break the loop
 		 */
 		err = kstrtoint(p, 0, &val);
 		if (err)
 			break;
 
 		/* [X12: point 1]
-		 * Explain following in here.
+		 * 
+		 * Add a value to the end of mylist using the store_value function
+		 * 
+		 * If there is an error, we break the loop
 		 */
 		err = store_value(val);
 		if (err)
@@ -148,7 +188,11 @@ static int parse_params(void)
 	}
 
 	/* [X13: point 1]
-	 * Explain following in here.
+	 *
+	 * Here we free the memory allocated for the orig string
+	 * using the Linux Kernel API function kfree
+	 * 
+	 * We then return the error code, which is 0 if there is no error
 	 */
 	kfree(orig);
 	return err;
