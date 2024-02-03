@@ -15,7 +15,7 @@ static char *int_str;
  */
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("[YOUR NAME]");
+MODULE_AUTHOR("[ROBERT DAVID HERNANDEZ]");
 MODULE_DESCRIPTION("LKP Homework 4");
 
 /* [X2: point 1]
