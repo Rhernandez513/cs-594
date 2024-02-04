@@ -1,0 +1,1 @@
+It seems as though the kernel I compiled and booted using syzkaller doesn't have access to the appropriate linux headers.  Using apt I found some header for 5.10 though we are using kernel version 6.1.  I might try those headers later at risk of having to reclone and recompile the kernel 
