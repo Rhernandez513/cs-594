@@ -73,14 +73,16 @@ static int store_value(int val)
 	 * return corresponding error code in error.h (e.g., -ENOMEM).
 	 */
 
+	struct entry *entry_instance;
 	entry_instance = kmalloc(sizeof(struct entry), GFP_KERNEL);
+
 	if (!entry_instance) {
 		return -ENOMEM;
 	}
 
-	entry_instance.val = val;
+	entry_instance->val = val;
 
-	list_add_tail(&entry_instance.list, &mylist);
+	list_add_tail(&entry_instance->list, &mylist);
 
 	return 0;
 }
@@ -92,7 +94,7 @@ static void test_linked_list(void)
 	 */
 	struct entry *entry_instance;
 	list_for_each_entry(entry_instance, &mylist, list) {
-		printk(KERN_INFO "val = %d\n", entry_instance.val);
+		printk(KERN_INFO "val = %d\n", entry_instance->val);
 	}
 }
 
@@ -105,8 +107,8 @@ static void destroy_linked_list_and_free(void)
 	struct entry *next;
 	struct entry *entry_instance;
 
-	list_for_each_entry_sace(entry_insrance, next, &mylist, list) {
-		list_del(&entry_instance.list);
+	list_for_each_entry_safe(entry_instance, next, &mylist, list) {
+		list_del(&entry_instance->list);
 		kfree(entry_instance);
 	}
 }
