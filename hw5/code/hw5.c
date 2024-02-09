@@ -20,7 +20,7 @@ static int print_buff_head = 0;
 static char *int_str;
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("XXXXXXX SOLUTION");
+MODULE_AUTHOR("Robert D. Hernandez SOLUTION");
 MODULE_DESCRIPTION("LKP hw 5");
 
 module_param(int_str, charp, S_IRUSR | S_IRGRP | S_IROTH);
@@ -65,7 +65,28 @@ static int store_value_xarray(int val)
 	/* TODO: [X1: 5 point]
 	 * Allocate a struct of xarrentry
 	 * and store the value to the myxarray.
+	 * 
+	 * In this case, I have added the value to the end of the array.
 	 */
+
+	xarrentry *entry = kmalloc(sizeof(struct xarrentry), GFP_KERNEL);
+	if (!entry) {
+		printk(KERN_INFO "Failed to allocate memory for xarrentry\n");
+		return -ENOMEM;
+	}
+	entry->val = val;
+
+	unsigned long index = 0;
+	struct xarrentry *old_entry;
+
+	// Add the element to the end of the XArray
+	while (1) {
+		old_entry = xa_cmpxchg(&myxarray, index, NULL, entry, GFP_KERNEL);
+		if (!old_entry)
+			break;
+
+		index++;
+	}
 
 	return 0;
 }
@@ -79,7 +100,17 @@ static int store_value_rbtree(int val)
 	 * and trigger a rebalance
 	 * */
 
-	return 0;
+// struct rbentry {
+// 	int val;
+// 	struct rb_node rbnode;
+// };
+
+	rbentry *entry = kmalloc(sizeof(struct rbentry), GFP_KERNEL);
+	entry->val = val;
+	// rb_node *node = &entry->rbnode;
+	// rb_node *node = kmalloc(sizeof(struct rb_node), GFP_KERNEL);
+	// TODO returns 1 because not finished
+	return 1;
 }
 
 static int store_value_hash_table(int val)
@@ -88,6 +119,10 @@ static int store_value_hash_table(int val)
 	 * Allocate a new hentry struct
 	 * and add the value to the hashtable
 	 * */
+
+	hentry *entry = kmalloc(sizeof(struct hentry), GFP_KERNEL);
+	entry->val = val;	
+	hash_add(myhtable, &entry->hash, val);
 
 	return 0;
 }
@@ -210,6 +245,13 @@ static void destroy_rbtree_and_free(void)
 	 * delete the node, and free the node memory
 	 * */
 
+	while (node) {
+		next = node->rb_next(node);
+		rb_erase(node, &myrbtree);
+		kfree(node);
+		node = next;
+	}
+
 }
 
 static void destroy_xarray_and_free(void)
@@ -223,6 +265,12 @@ static void destroy_xarray_and_free(void)
 	 * delete the element, and free the memory
 	 * */
 
+	xa_for_each(&myxarray, index, entry) {
+		if (entry) {
+			xa_erase(&myxarray, index);
+			kfree(entry);
+		}
+	}
 }
 
 static int parse_params(void)
