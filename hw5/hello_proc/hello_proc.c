@@ -20,7 +20,7 @@ static const struct file_operations hello_procs_fops = {
 };
 
 static int __init hello_proc_init(void) {
-    proc_create("hello_proc", 0, NULL, &hello_proc_fops);
+    proc_create("hello_proc", 0, NULL, &hello_procs_fops);
     return 0;
 }
 
