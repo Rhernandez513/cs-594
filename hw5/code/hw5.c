@@ -76,10 +76,9 @@ static int store_value_xarray(int val)
 	}
 	entry->val = val;
 
+	// Add the element to the end of the XArray
 	unsigned long index = 0;
 	struct xarrentry *old_entry;
-
-	// Add the element to the end of the XArray
 	while (1) {
 		old_entry = xa_cmpxchg(&myxarray, index, NULL, entry, GFP_KERNEL);
 		if (!old_entry)
@@ -100,17 +99,17 @@ static int store_value_rbtree(int val)
 	 * and trigger a rebalance
 	 * */
 
-// struct rbentry {
-// 	int val;
-// 	struct rb_node rbnode;
-// };
-
 	rbentry *entry = kmalloc(sizeof(struct rbentry), GFP_KERNEL);
+	if (!entry) {
+		printk(KERN_INFO "Failed to allocate memory for rbentry\n");
+		return -ENOMEM;
+	}
+
 	entry->val = val;
-	// rb_node *node = &entry->rbnode;
-	// rb_node *node = kmalloc(sizeof(struct rb_node), GFP_KERNEL);
-	// TODO returns 1 because not finished
-	return 1;
+
+	rb_insert(&myrbtree, &entry->rbnode);
+
+	return 0;
 }
 
 static int store_value_hash_table(int val)
@@ -121,6 +120,11 @@ static int store_value_hash_table(int val)
 	 * */
 
 	hentry *entry = kmalloc(sizeof(struct hentry), GFP_KERNEL);
+	if (!entry) {
+		printk(KERN_INFO "Failed to allocate memory for hentry\n");
+		return -ENOMEM;
+	}
+
 	entry->val = val;	
 	hash_add(myhtable, &entry->hash, val);
 
