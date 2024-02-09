@@ -4,8 +4,6 @@ obj-m += $(MODULE).o
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 
-PWD := $(shell pwd)
-
 all: $(MODULE)
 
 
@@ -14,7 +12,7 @@ all: $(MODULE)
 	@$(CC) -c $< -o $@
 
 $(MODULE):
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+	$(MAKE) -C $(KERNELDIR) M=$(shell pwd) modules
 
 clean:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
+	$(MAKE) -C $(KERNELDIR) M=$(shell pwd) clean
