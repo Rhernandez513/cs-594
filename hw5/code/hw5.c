@@ -339,14 +339,36 @@ static int kern_ds_proc_show(struct seq_file *m, void *v)
 
 /* [X7: 1 point]
  * Explain the following code here.
+ *
+ * this code defines an open operation for a /proc file entry 
+ * inode is for the files permissions and other metadata
  * */
 static int kern_ds_proc_open(struct inode *inode, struct  file *file)
 {
+	/* single_open is a helper the Linux Kernel provides 
+	*  as a helper function for opening a file in /proc
+	*
+	* file is a pointer to the file struct that is being opened
+	* 
+	* kern_ds_proc_show is the function that will be called when 
+	* the file is opened
+	* 
+	* NULL is that we are not passing data to kern_ds_proc_show 
+	* */
 	  return single_open(file, kern_ds_proc_show, NULL);
 }
 
 /* [X8: 1 point]
  * Explain the following code here.
+ *
+ * this code is for file operations "proc_ops" for a /proc 
+ * file entry
+ * 
+ * struct proc_ops is to ID the file operations for a /proc 
+ * file * and uses pointers to functions to define the operations
+ * 
+ * each item here: open, read, lseek, and release map
+ * to function pointers
  * */
 static const struct proc_ops kern_ds_proc_fops = {
 	  .proc_open = kern_ds_proc_open,
@@ -373,6 +395,21 @@ static int __init hw5_init(void)
 
 	/* [X9: 1 point]
 	 * Explain the following code here.
+	 *
+	 * 
+	 * proc_create is a kernel helper function to 
+	 * create a /proc file entry
+	 * 
+	 * "hw5" is the name of the file
+	 * 
+	 * 0 is the mode AKA permissions of the file
+	 * 
+	 * NULL is the parent directory of the file, 
+	 * to indicate the /proc root
+	 * 
+	 * &kern_ds_proc_fops is the struct that holds
+	 * the function pointers to the file operations
+	 * for the /proc entry
 	 * */
 	proc_create("hw5", 0, NULL, &kern_ds_proc_fops);
 
@@ -385,6 +422,13 @@ static void __exit hw5_exit(void)
 
 	/* [X10: 1 point]
 	 * Explain the following code here.
+	 *
+	 * Here we are removing the /proc file entry
+	 * 
+	 * "hw5" is the name of the file
+	 * 
+	 * NULL is the parent directory of the file,
+	 * indidate the /proc root
 	 * */
 	remove_proc_entry("hw5", NULL);
 
