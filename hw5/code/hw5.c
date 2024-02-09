@@ -236,6 +236,10 @@ static void destroy_hash_table_and_free(void)
 	 * delete the node, and free the entry memory
 	 * */
 
+	hash_for_each(myhtable, bkt, current_elem, hash) {
+		hash_del(&current_elem->hash);
+		kfree(current_elem);
+	}
 }
 
 static void destroy_rbtree_and_free(void)
@@ -249,13 +253,14 @@ static void destroy_rbtree_and_free(void)
 	 * delete the node, and free the node memory
 	 * */
 
+	node = rb_first(&myrbtree);
+
 	while (node) {
 		next = node->rb_next(node);
 		rb_erase(node, &myrbtree);
 		kfree(node);
 		node = next;
 	}
-
 }
 
 static void destroy_xarray_and_free(void)
