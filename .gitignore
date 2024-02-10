@@ -1,6 +1,11 @@
 cs594sshkey.pem
 cs-594_key.pem
 
+# Linux kernel modules files
+*.ko
+*.mod
+*modules.order
+
 # Created by https://www.toptal.com/developers/gitignore/api/linux,vi,macos,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,vi,macos,python
 
