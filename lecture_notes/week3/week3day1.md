@@ -38,10 +38,10 @@ list_for_each_entry(current_car, &my_car_list, list) {
   printk(KERN_INFO "Price: %ld\n", current_car->price_in_dollars);
 }
 
-Recap: Linux Hash Table
 
+![Recap: Linux Hash Table](./images/recap_linux_hash_table.png)
 
-
+![Recap: Linux red-black tree (or rbtree)](./images/recap_linux_red_black_tree.png)
 
 
 Agenda
@@ -71,14 +71,15 @@ Kmalloc(size, gfp_mask)
 Allocate virtually and physically contiguous memory
 	- Where physically contiguous memory necessary?
 	
-	
+![kmalloc() example](./images/kmalloc_example.png)
+
 vmalloc(size)
 Allocate memory that is virtually contiguous, but not physically contiguous
 No size limit other than the amount of free RAM
 Memory allocator might sleep to get more free memory
 Unit of allocation is a page (4KB)
 
-
+![Radix tree (or Trie)](./images/radix_tree_or_trie.png)
 
 
 Linux radix tree
@@ -87,9 +88,10 @@ Each node has 64 slots
 Slots are indexed by a 6-bit (2^6 = 64 64) portion of the key
 	- Tags, parent pointer, offset in parent, etc
 
+![Radix Tree inset](./images/linux_radix_tree_inset.png)
+
  
  Recall the linux kernel radix tree is optimized to use a unsigned long as an index
 
 From wiki: " Radix trees are useful for constructing associative arrays with keys that can be expressed as strings."
-
 
