@@ -38,6 +38,7 @@ Interrupts are electrical signals multiplexed by the interrupt controller
 
 Once an interrupt is received, a dedicated function is executed
 - Interrupt Handler
+
 The kernel/userspace can be interrupted at any time 
 
 
@@ -155,20 +156,23 @@ In many modern OSes, including Linux, interrupt processing is split into two par
 - Run later
 
 
-**Ex: network packet processing**
+**EX: network packet processing**
+
 Top-half: interrupt service routine
-    - Ack the hardware
-    - Copies the new network packings in the main memory
-    - Readies the network card for more packets
-    - **Time critical** because the packet buffer on the network cards is limited in size -> packet drop
-    - // TODO get the rest of this slides
+
+- Ack the hardware
+- Copies the new network packings in the main memory
+- Readies the network card for more packets
+- **Time critical** because the packet buffer on the network cards is limited in size 
+  - => packet drop
+- // TODO get the rest of this slides
 
 
 **Shared handlers**
 The IRQF_SHARED flag must be set in the flags arg to request_irg()
 
 The dev_id argument must be unique to each registered handler
-    - A pointer to any per-device structure is sufficient (e.g., struct device)
+- A pointer to any per-device structure is sufficient (e.g., struct device)
 // TODO get the rest of the slide
 
 
@@ -197,7 +201,7 @@ Specific entry point for each interrupt line
 **Interrupt control**
 
 Kernel code sometimes needs to disable interrupts to ensure **atomic execution** of a section of code 
-- By disabling interrupts, you can guarantee that an interrupt handler will not preempt your curret code
+- By disabling interrupts, you can guarantee that an interrupt handler will not preempt your current code
 - Moreover, disabling interrupts aslo disables kernel preemption
 
 Note that disabling interrupts does not protect agaisnt concurrent access from other cores
@@ -208,11 +212,13 @@ We can disable all IRQ or we can disable a specific IRQ, you can also use "nosyn
 **Further reading**
 
 LWN: Debugging the kernel using Ftrace - part 1
+
 0xAX: Interrupts and Interrupt Handling
 
 
 **Next week**
 
 Interrupt handler: bottom 
+
 Kernel synchronization
 
