@@ -17,8 +17,9 @@
 #include <linux/kprobes.h>
 #include <linux/types.h>
 #include <linux/atomic.h>
+#include <linux/hashtable.h>
 
-static char symbol[KSYM_NAME_LEN] = "perftop_show";
+static char symbol[KSYM_NAME_LEN] = "pick_next_task_fair";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
 
 /* For each probe you need to allocate a kprobe structure */
@@ -30,6 +31,22 @@ long _counter;
 atomic_t counter = ATOMIC_INIT(0);
 /* atomic_set(&counter, 0); */
 
+/////////////////// HASH TABLE BEGIN ///////////////////////////
+/*
+ * Let's make our hash table have 2^10 = 1024 bins
+ * */
+#define MY_HASH_TABLE_BINS 10
+static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
+
+/* Hashtable entry struct */
+struct hentry {
+	int pid;
+	int run_count;
+	struct hlist_node hash;
+};
+/////////////////// HASH TABLE END ///////////////////////////
+
+
 /* kprobe pre_handler: called just before the probed instruction is executed */
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
@@ -37,14 +54,31 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 
 	/* struct kprobe_instance = kmalloc(sizeof(struct kprobe), GFP_ATOMIC); */
 
-	atomic_add(1, &counter);
-	_counter = atomic_read(&counter);
+	/** atomic_add(1, &counter);
+	 * _counter = atomic_read(&counter);
+	 *
+	 * pr_info("Incremented PERFTOP COUNTER\n");
+	 * pr_info("counter = %lx", _counter);
+	*/
+	struct task_struct *task;
 
-	/* printk(KERN_INFO "\nIncremented PERFTOP COUNTER\n"); */
-	/* printk(KERN_INFO "counter = %l\n", _counter); */
+	struct hentry *entry = kmalloc(sizeof(struct hentry), GFP_ATOMIC);
+	if (!entry) {
+		pr_info("Failed to allocate memory for hentry\n");
+		return -ENOMEM;
+	}
 
-	pr_info("Incremented PERFTOP COUNTER\n");
-	pr_info("counter = %lx", _counter);
+    // Access the task_struct pointer from the "task" field of pt_regs
+    task = (struct task_struct *)regs->di;
+
+	// Do something with the task_struct pointer
+    pr_info("pick_next_task_fair called. task_struct pointer: %p\n", task);
+
+
+	// entry->pid = pid;
+	// entry->run_count = run_count;
+	// hash_add(myhtable, &entry->hash, pid);
+
 
 	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->ip, regs->flags);
@@ -87,7 +121,6 @@ static void __kprobes handler_post(struct kprobe *p, struct pt_regs *regs,
 				unsigned long flags)
 {
 #ifdef CONFIG_X86
-	pr_info("IN handler_post");
 	pr_info("<%s> p->addr = 0x%p, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->flags);
 #endif
@@ -136,8 +169,21 @@ static int __init kprobe_init(void)
 	return 0;
 }
 
+static void destroy_hash_table_and_free(void)
+{
+
+	struct hentry *current_elem;
+	unsigned bkt;
+
+	hash_for_each(myhtable, bkt, current_elem, hash) {
+		hash_del(&current_elem->hash);
+		kfree(current_elem);
+	}
+}
+
 static void __exit kprobe_exit(void)
 {
+	destroy_hash_table_and_free();
 	unregister_kprobe(&kp);
 	pr_info("kprobe at %p unregistered\n", kp.addr);
 }
