@@ -15,6 +15,8 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/kprobes.h>
+#include <linux/types.h>
+#include <linux/atomic.h>
 
 static char symbol[KSYM_NAME_LEN] = "perftop";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
@@ -24,20 +26,25 @@ static struct kprobe kp = {
 	.symbol_name	= symbol,
 };
 
-atomic_t counter;
-atomic_set(&counter, 0);
+long _counter;
+atomic_t counter = ATOMIC_INIT(0);
+/* atomic_set(&counter, 0); */
 
 /* kprobe pre_handler: called just before the probed instruction is executed */
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
 #ifdef CONFIG_X86
 
-	// struct kprobe_instance = kmalloc(sizeof(struct kprobe), GFP_ATOMIC);
+	/* struct kprobe_instance = kmalloc(sizeof(struct kprobe), GFP_ATOMIC); */
 
 	atomic_add(1, &counter);
+	_counter = atomic_read(&counter);
 
-	printk(KERN_INFO "\nIncremented PERFTOP COUNTER\n");
-	printk(KERN_INFO "counter = %d\n", counter);
+	/* printk(KERN_INFO "\nIncremented PERFTOP COUNTER\n"); */
+	/* printk(KERN_INFO "counter = %l\n", _counter); */
+
+	pr_info("Incremented PERFTOP COUNTER\n");
+	pr_info("counter = %lx", _counter);
 
 	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->ip, regs->flags);
@@ -80,7 +87,7 @@ static void __kprobes handler_post(struct kprobe *p, struct pt_regs *regs,
 				unsigned long flags)
 {
 #ifdef CONFIG_X86
-	pr_info("IN handler_post")
+	pr_info("IN handler_post");
 	pr_info("<%s> p->addr = 0x%p, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->flags);
 #endif
