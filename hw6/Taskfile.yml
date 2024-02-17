@@ -17,13 +17,21 @@ tasks:
     cmds:
       - echo 'Not Yet Implemented'
     silent: true
-  load:
+  load_pid_counter:
+    cmds:
+      - sudo insmod kprobe_pick_next_task_fair.ko
+    silent: true
+  unload_pid_counter:
+    cmds:
+      - sudo rmmod kprobe_pick_next_task_fair.ko
+    silent: true
+  load_perftop:
     cmds:
       - sudo insmod perftop.ko
       - sudo insmod kprobe_perftop.ko
       - sudo insmod kretprobe_perftop_show.ko
     silent: true
-  unload:
+  unload_perftop:
     cmds:
       - sudo rmmod perftop
       - sudo rmmod kprobe_perftop

@@ -8,7 +8,8 @@
 ifneq ($(KERNELRELEASE),)
 obj-m := perftop.o 
 obj-m += kprobe_perftop.o
-obj-m += kretprobe_perftop.o
+obj-m += kprobe_pick_next_task_fair.o
+obj-m += kretprobe_perftop_show.o
 
 else
 KDIR := /lib/modules/$(shell uname -r)/build

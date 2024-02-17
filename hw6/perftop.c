@@ -8,6 +8,25 @@ static int perftop_show(struct seq_file *m, void *v) {
     return 0;
 }
 
+EXPORT_SYMBOL(perftop_show);
+
+/////////////////// HASH TABLE BEGIN ///////////////////////////
+/*
+ * Let's make our hash table have 2^10 = 1024 bins
+ * */
+// #define MY_HASH_TABLE_BINS 10
+// static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
+
+/* Hashtable entry struct */
+// struct hentry {
+// 	int val;
+// 	struct hlist_node hash;
+// };
+// EXPORT_SYMBOL(myhtable);
+// EXPORT_SYMBOL(hentry);
+/////////////////// HASH TABLE END ///////////////////////////
+
+
 static int perftop_open(struct inode *inode, struct file *file) {
     return single_open(file, perftop_show, NULL);
 }
