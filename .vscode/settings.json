@@ -1,0 +1,40 @@
+{
+    "files.associations": {
+        "__locale": "c",
+        "__threading_support": "c",
+        "bitset": "c",
+        "optional": "c",
+        "string": "c",
+        "string_view": "c",
+        "system_error": "c",
+        "thread": "c",
+        "variant": "c",
+        "vector": "c",
+        "memory": "c"
+    },
+    "[c]": {
+        "editor.wordBasedSuggestions": "off",
+        "editor.suggest.insertMode": "replace",
+        "editor.semanticHighlighting.enabled": true
+    },
+    "[makefile]": {
+        "editor.insertSpaces": false
+    },
+    "[markdown]": {
+        "editor.unicodeHighlight.ambiguousCharacters": false,
+        "editor.unicodeHighlight.invisibleCharacters": false,
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.wordWrap": "on",
+        "editor.quickSuggestions": {
+            "comments": "off",
+            "strings": "off",
+            "other": "off"
+        }
+    },
+    "[yaml]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "diffEditor.ignoreTrimWhitespace": false
+    }
+}

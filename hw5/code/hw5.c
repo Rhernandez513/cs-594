@@ -227,7 +227,6 @@ static void test_xarray(void)
 
 static void destroy_hash_table_and_free(void)
 {
-
 	struct hentry *current_elem;
 	unsigned bkt;
 

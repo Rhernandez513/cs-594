@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "ms-vscode.makefile-tools",
+        "ms-vscode.cpptools-themes",
+        "ms-vscode-remote.remote-ssh",
+        "ms-vscode-remote.remote-ssh-edit",
+    ]
+}
