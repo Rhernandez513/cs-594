@@ -56,8 +56,6 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
 #ifdef CONFIG_X86
 
-	/* struct kprobe_instance = kmalloc(sizeof(struct kprobe), GFP_ATOMIC); */
-
 	struct task_struct *task;
 	pid_t pid;
 	struct hentry *found_entry;
