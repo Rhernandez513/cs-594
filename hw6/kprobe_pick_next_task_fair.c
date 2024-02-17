@@ -12,6 +12,7 @@
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
 
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/kprobes.h>
@@ -20,6 +21,8 @@
 #include <linux/hashtable.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
+#include <linux/proc_fs.h>
+#include <linux/seq_file.h>
 
 static char symbol[KSYM_NAME_LEN] = "pick_next_task_fair";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
@@ -48,6 +51,32 @@ struct hentry {
 	struct hlist_node hash;
 };
 /////////////////// HASH TABLE END ///////////////////////////
+
+static int perftop_show(struct seq_file *m, void *v) {
+    seq_printf(m, "Hello Perftop from kprobe_pick_next_task_fair\n");
+
+    struct hentry *current_elem;
+    unsigned bkt;
+    hash_for_each(myhtable, bkt, current_elem, hash) {
+        seq_printf(m,"Element PID: %d\n", current_elem->pid);
+        seq_printf(m, "Element run_count: %d\n", current_elem->run_count);
+    }
+    return 0;
+}
+
+EXPORT_SYMBOL(perftop_show);
+
+static int perftop_open(struct inode *inode, struct file *file) {
+    return single_open(file, perftop_show, NULL);
+}
+
+static const struct file_operations perftops_fops = {
+    .owner = THIS_MODULE,
+    .open = perftop_open,
+    .read = seq_read,
+    .llseek = seq_lseek,
+    .release = single_release,
+};
 
 atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
 
@@ -176,6 +205,9 @@ static int __init kprobe_init(void)
 		return ret;
 	}
 	pr_info("Planted kprobe at %p\n", kp.addr);
+
+	proc_create("perftop", 0, NULL, &perftops_fops);
+	pr_info("Created procfc entry at perftop\n");
 	return 0;
 }
 
@@ -227,6 +259,9 @@ static void __exit kprobe_exit(void)
 	destroy_hash_table_and_free();
 	unregister_kprobe(&kp);
 	pr_info("kprobe at %p unregistered\n", kp.addr);
+
+	remove_proc_entry("perftop", NULL);
+	pr_info("Removed procfs entry perftop\n");
 }
 
 module_init(kprobe_init)
