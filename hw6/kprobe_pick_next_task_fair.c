@@ -18,18 +18,21 @@
 #include <linux/types.h>
 #include <linux/atomic.h>
 #include <linux/hashtable.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
 
 static char symbol[KSYM_NAME_LEN] = "pick_next_task_fair";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
+
 
 /* For each probe you need to allocate a kprobe structure */
 static struct kprobe kp = {
 	.symbol_name	= symbol,
 };
 
-long _counter;
-atomic_t counter = ATOMIC_INIT(0);
-/* atomic_set(&counter, 0); */
+struct hentry *find_entry_by_pid(int pid);
+static int store_value_hash_table(int pid, int run_count);
+static void destroy_hash_table_and_free(void);
 
 /////////////////// HASH TABLE BEGIN ///////////////////////////
 /*
@@ -46,6 +49,7 @@ struct hentry {
 };
 /////////////////// HASH TABLE END ///////////////////////////
 
+atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
 
 /* kprobe pre_handler: called just before the probed instruction is executed */
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
@@ -54,19 +58,9 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 
 	/* struct kprobe_instance = kmalloc(sizeof(struct kprobe), GFP_ATOMIC); */
 
-	/** atomic_add(1, &counter);
-	 * _counter = atomic_read(&counter);
-	 *
-	 * pr_info("Incremented PERFTOP COUNTER\n");
-	 * pr_info("counter = %lx", _counter);
-	*/
 	struct task_struct *task;
-
-	struct hentry *entry = kmalloc(sizeof(struct hentry), GFP_ATOMIC);
-	if (!entry) {
-		pr_info("Failed to allocate memory for hentry\n");
-		return -ENOMEM;
-	}
+	pid_t pid;
+	struct hentry *found_entry;
 
     // Access the task_struct pointer from the "task" field of pt_regs
     task = (struct task_struct *)regs->di;
@@ -74,11 +68,29 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 	// Do something with the task_struct pointer
     pr_info("pick_next_task_fair called. task_struct pointer: %p\n", task);
 
+    // Get the PID from the task_struct
+    pid = task_pid_nr(task);
+	// Print the PID using printk with KERN_INFO
+    pr_info("Process ID (PID): %d\n", pid);
 
-	// entry->pid = pid;
-	// entry->run_count = run_count;
-	// hash_add(myhtable, &entry->hash, pid);
+    // // Find the entry based on PID
+    found_entry = find_entry_by_pid(pid);
 
+    if (found_entry) {
+        pr_info("Entry found for PID %d\n", pid);
+
+		// Read the run count, store in an atomic variable
+		atomic_set(&atomic_entry_run_count, found_entry->run_count);
+
+		// Increment and set atomically 
+		found_entry->run_count = atomic_add_return(1, &atomic_entry_run_count);
+		pr_info("Incremented run_count for PID %d\n", pid);
+		pr_info("Run count: %d\n", found_entry->run_count);
+    } else {
+		pr_info("Entry not found for PID %d\n", pid);
+		store_value_hash_table(pid, 1);
+		pr_info("Stored new entry for PID %d\n", pid);
+    }
 
 	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->ip, regs->flags);
@@ -169,9 +181,40 @@ static int __init kprobe_init(void)
 	return 0;
 }
 
-static void destroy_hash_table_and_free(void)
+// Function to find an entry in the hash table based on PID
+struct hentry *find_entry_by_pid(int pid) {
+    struct hentry *entry = NULL;
+
+    hash_for_each_possible(myhtable, entry, hash, pid) {
+        if (entry->pid == pid) {
+            // Entry found, return the pointer to the struct
+            return entry;
+        }
+    }
+
+    // Entry not found
+    return NULL;
+}
+
+static int store_value_hash_table(int pid, int run_count)
 {
 
+	struct hentry *entry = kmalloc(sizeof(struct hentry), GFP_ATOMIC);
+	if (!entry) {
+		pr_info("Failed to allocate memory for hentry\n");
+		return -ENOMEM;
+	}
+
+	entry->pid = pid;
+	entry->run_count = run_count;
+
+	hash_add(myhtable, &entry->hash, pid);
+
+	return 0;
+}
+
+static void destroy_hash_table_and_free(void)
+{
 	struct hentry *current_elem;
 	unsigned bkt;
 
