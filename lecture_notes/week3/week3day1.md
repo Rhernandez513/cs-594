@@ -96,25 +96,25 @@ Slots are indexed by a 6-bit (2^6 = 64 64) portion of the key
 From wiki: " Radix trees are useful for constructing associative arrays with keys that can be expressed as strings."
 
 
-CS 594- W03L1 - kern mod + radix tree, xarray, bitmap
+# CS 594- W03L1 - kern mod + radix tree, xarray, bitmap
 
-Linux radix tree example
+## Linux radix tree example
 The most important user is the page chache
-	- Page cache: a cache (in RAM) for pages from the disk
-	- Every time we look up a page in a file, we consult the radix tree to see if the page is already in the cache
-	- Use tags to maintain the status page
-		(e.g., PAGECACHE_TAG_DIRTY or PAGECACHE_TAG_WRITEBACK)
+- Page cache: a cache (in RAM) for pages from the disk
+- Every time we look up a page in a file, we consult the radix tree to see if the page is already in the cache
+- Use tags to maintain the status page
+	- (e.g., PAGECACHE_TAG_DIRTY or PAGECACHE_TAG_WRITEBACK)
 
 
 
 
-Rbtree vs radix tree vs hash table
-	- RB trees are a type of self-balancing binary search tree, used for storing sortable key/value data pairs
-	- Radix trees are used to efficiently store sparse arrays and thus use long integer indexes to insert/access delete nodes
-	- Hash tables are not kept sorted to be easily traveresed in order and must be tuned for a specific size
+## Rbtree vs radix tree vs hash table
+- RB trees are a type of self-balancing binary search tree, used for storing sortable key/value data pairs
+- Radix trees are used to efficiently store sparse arrays and thus use long integer indexes to insert/access delete nodes
+- Hash tables are not kept sorted to be easily traveresed in order and must be tuned for a specific size
 
 
-Xarray
+## Xarray
 A nicer API replacement for Linux radix tree (since 4.19)
 An automatically resizing array of pointers indexed by an unsigned long
 Entries may have up to three tab gits (get/set/clear)
@@ -123,7 +123,7 @@ You can extract a batch of entries
 Embeds a spinlock
 Loads are store-free using RCU
 
-Xarray API
+## Xarray API
 
 ```c
 #include <linux/xarray.h>
