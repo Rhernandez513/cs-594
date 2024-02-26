@@ -71,7 +71,7 @@ static int perftop_show(struct seq_file *m, void *v) {
 
     // Save the stack trace using stack_trace_save_tsk
 	DECLARE_BITMAP(stack_trace, MAX_STACK_TRACE_DEPTH);
-	// int depth;
+	int depth;
 
 	// Initialize the bitmap
 	bitmap_zero(stack_trace, MAX_STACK_TRACE_DEPTH);
@@ -79,8 +79,10 @@ static int perftop_show(struct seq_file *m, void *v) {
 	// Save the stack trace for the current task
 	// depth = save_stack_trace_tsk(task, stack_trace, MAX_STACK_TRACE_DEPTH, 0);
 	// depth = stack_trace_save_tsk(task, stack_trace, MAX_STACK_TRACE_DEPTH, 0);
-	save_stack_trace_tsk(task, &stack_trace);
+	// save_stack_trace_tsk(task, &stack_trace);
 	// depth = stack_trace_save_tsk(task, stack_trace, 0, MAX_STACK_TRACE_DEPTH);
+
+	depth = stack_trace_save(stack_trace, MAX_STACK_TRACE_DEPTH, 0);
 
 	// Print the stack trace
 	// seq_printf(m, "Stack Trace:\n");
