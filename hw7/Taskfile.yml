@@ -1,0 +1,43 @@
+version: '3'
+
+tasks:
+  hello:
+    cmds:
+      - echo 'Hello World from Task!'
+    silent: true
+  build:
+    cmds:
+      - make
+    silent: true
+  run:
+    cmds:
+      - echo 'Not Yet Implemented'
+    silent: true
+  test:
+    cmds:
+      - echo 'Not Yet Implemented'
+    silent: true
+  load_pid_counter:
+    cmds:
+      - sudo insmod kprobe_pick_next_task_fair.ko
+    silent: true
+  unload_pid_counter:
+    cmds:
+      - sudo rmmod kprobe_pick_next_task_fair.ko
+    silent: true
+  load_perftop:
+    cmds:
+      - sudo insmod perftop.ko
+      - sudo insmod kprobe_perftop.ko
+      - sudo insmod kretprobe_perftop_show.ko
+    silent: true
+  unload_perftop:
+    cmds:
+      - sudo rmmod perftop
+      - sudo rmmod kprobe_perftop
+      - sudo rmmod kretprobe_perftop_show
+    silent: true
+  clean:
+    cmds:
+      - make clean
+    silent: true
