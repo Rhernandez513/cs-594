@@ -1,6 +1,8 @@
 {
     "recommendations": [
+        "GitHub.copilot",
         "ms-vscode.makefile-tools",
+        "ms-vscode.cpptools-extension-pack",
         "ms-vscode.cpptools-themes",
         "ms-vscode-remote.remote-ssh",
         "ms-vscode-remote.remote-ssh-edit",
