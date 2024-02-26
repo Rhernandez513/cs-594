@@ -48,32 +48,20 @@ static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
 struct hentry {
 	int pid;
 	int run_count;
-	char stack_trace[];
+	char *stack_trace;
 	struct hlist_node hash;
 };
 /////////////////// HASH TABLE END ///////////////////////////
 
 static int perftop_show(struct seq_file *m, void *v) {
-    seq_printf(m, "Hello Perftop from kprobe_stack_trace_save\n");
-
     struct hentry *current_elem;
     unsigned bkt;
+
+    seq_printf(m, "Hello Perftop from kprobe_stack_trace_save\n");
+
     hash_for_each(myhtable, bkt, current_elem, hash) {
         seq_printf(m,"Element PID: %d\n", current_elem->pid);
-        // seq_printf(m, "Element run_count: %d\n", current_elem->run_count);
-        // seq_printf(m,"Element Stack Trace as Byte[]: %d\n", current_elem->stack_trace);
-		seq_printf(m, "Byte Array: ");
-		for (i = 0; i < sizeof(current_elem->stack_trace); i++) {
-			// char/string format
-			// seq_printf(m, "%s ", current_elem->stack_trace[i]);
-			// decimal format
-			// seq_printf(m, "%d ", current_elem->stack_trace[i]);
-			// Hex format
-			// seq_printf(m, "%02x ", current_elem->stack_trace[i]);
-			// unsigned decimal format
-			// seq_printf(m, "%02x ", current_elem->stack_trace[i]);
-		}
-		seq_printf(m, "\n");
+        seq_printf(m, "Element run_count: %d\n", current_elem->run_count);
     }
     return 0;
 }
@@ -97,31 +85,47 @@ atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
 
 /* Function to get the stack trace for a given task */
 /* and print it */
-void get_stack_trace(struct task_struct *task) {
-    struct pt_regs regs;
+char *get_stack_trace(struct task_struct *task) {
+    struct pt_regs *regs;
+    unsigned long *stack_pointer;
+    unsigned long *stack_end;
+	char *stack_trace = kmalloc(PAGE_SIZE, GFP_ATOMIC);
 
-    if (ptrace_get_regs(task, &regs) == 0) {
-        printk(KERN_INFO "Stack Trace for PID %d:\n", task->pid);
+    if (!stack_trace) {
+        printk(KERN_INFO "Failed to allocate memory for stack_trace\n");
+        return NULL;
+    }
+
+    stack_trace[0] = '\0';  // Initialize the string to an empty string
+
+	regs = task_pt_regs(task);
+
+    if (regs) {
+		pr_info("Stack Trace for PID %d:\n", task->pid);
         
-        unsigned long *stack_pointer = (unsigned long *)regs.sp;
-        unsigned long *stack_end = (unsigned long *)(task->stack + THREAD_SIZE);
+        stack_pointer = (unsigned long *)regs->sp;
+        stack_end = (unsigned long *)(task->stack + THREAD_SIZE);
 
         while (stack_pointer < stack_end && access_ok(stack_pointer, sizeof(unsigned long))) {
             unsigned long addr;
 
             if (get_user(addr, stack_pointer) == 0) {
-                printk(KERN_INFO "%lx ", addr);
+				/* simply print*/
+				pr_info("Stack Pointer: %lx\n", *stack_pointer);
+
+				/* test on second round of testing*/
+				/* Format a string and place it in a buffer*/
+				/* snprintf(stack_trace + strlen(stack_trace), PAGE_SIZE - strlen(stack_trace), "%lx ", addr); */
             } else {
-                printk(KERN_INFO "Unreadable ");
+				pr_info("Unreadable \n");
             }
 
             stack_pointer++;
         }
-
-        printk(KERN_INFO "\n");
     } else {
-        printk(KERN_INFO "Failed to get registers for PID %d\n", task->pid);
+		pr_info("Failed to get registers for PID %d\n", task->pid);
     }
+	return stack_trace;
 }
 
 
@@ -142,7 +146,13 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
     pr_info("stack_trace_save called. task_struct pointer: %p\n", task);
 
 	if (task != NULL) {
-		get_stack_trace(task);
+		stack_trace = get_stack_trace(task);
+
+		/* we don't yet use stack_trace*/
+		if (stack_trace != NULL) {
+			pr_info("Stack trace for PID %d: %s\n", task->pid, stack_trace);
+			kfree(stack_trace);
+		}
 	}
 
     // Get the PID from the task_struct
