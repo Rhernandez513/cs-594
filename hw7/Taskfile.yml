@@ -11,13 +11,11 @@ tasks:
     silent: true
   load_perftop:
     cmds:
-      - sudo insmod perftop.ko
       - sudo insmod kprobe_stack_trace_save.ko
       - sudo insmod kretprobe_perftop_show.ko
     silent: true
   unload_perftop:
     cmds:
-      - sudo rmmod perftop
       - sudo rmmod kprobe_stack_trace_save
       - sudo rmmod kretprobe_perftop_show
     silent: true

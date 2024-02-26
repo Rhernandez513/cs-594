@@ -6,7 +6,6 @@
 # obj-$(CONFIG_SAMPLE_KRETPROBES) += kretprobe_example.o
 
 ifneq ($(KERNELRELEASE),)
-obj-m := perftop.o 
 obj-m += kprobe_stack_trace_save.o
 obj-m += kretprobe_perftop_show.o
 
@@ -19,4 +18,4 @@ default:
 endif
 
 clean:
-	rm *.ko *.mod modules.order .perftop.o.d .kprobe_stack_trace_save.o.d
+	rm *.ko *.mod modules.order .kprobe_stack_trace_save.o.d
