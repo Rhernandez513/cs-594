@@ -12,7 +12,6 @@
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
 
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/kprobes.h>
@@ -23,10 +22,11 @@
 #include <linux/slab.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+#include <linux/ptrace.h>
 
-static char symbol[KSYM_NAME_LEN] = "pick_next_task_fair";
+
+static char symbol[KSYM_NAME_LEN] = "stack_trace_save";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
-
 
 /* For each probe you need to allocate a kprobe structure */
 static struct kprobe kp = {
@@ -48,18 +48,32 @@ static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
 struct hentry {
 	int pid;
 	int run_count;
+	char stack_trace[];
 	struct hlist_node hash;
 };
 /////////////////// HASH TABLE END ///////////////////////////
 
 static int perftop_show(struct seq_file *m, void *v) {
-    seq_printf(m, "Hello Perftop from kprobe_pick_next_task_fair\n");
+    seq_printf(m, "Hello Perftop from kprobe_stack_trace_save\n");
 
     struct hentry *current_elem;
     unsigned bkt;
     hash_for_each(myhtable, bkt, current_elem, hash) {
         seq_printf(m,"Element PID: %d\n", current_elem->pid);
-        seq_printf(m, "Element run_count: %d\n", current_elem->run_count);
+        // seq_printf(m, "Element run_count: %d\n", current_elem->run_count);
+        // seq_printf(m,"Element Stack Trace as Byte[]: %d\n", current_elem->stack_trace);
+		seq_printf(m, "Byte Array: ");
+		for (i = 0; i < sizeof(current_elem->stack_trace); i++) {
+			// char/string format
+			// seq_printf(m, "%s ", current_elem->stack_trace[i]);
+			// decimal format
+			// seq_printf(m, "%d ", current_elem->stack_trace[i]);
+			// Hex format
+			// seq_printf(m, "%02x ", current_elem->stack_trace[i]);
+			// unsigned decimal format
+			// seq_printf(m, "%02x ", current_elem->stack_trace[i]);
+		}
+		seq_printf(m, "\n");
     }
     return 0;
 }
@@ -80,6 +94,37 @@ static const struct file_operations perftops_fops = {
 
 atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
 
+
+/* Function to get the stack trace for a given task */
+/* and print it */
+void get_stack_trace(struct task_struct *task) {
+    struct pt_regs regs;
+
+    if (ptrace_get_regs(task, &regs) == 0) {
+        printk(KERN_INFO "Stack Trace for PID %d:\n", task->pid);
+        
+        unsigned long *stack_pointer = (unsigned long *)regs.sp;
+        unsigned long *stack_end = (unsigned long *)(task->stack + THREAD_SIZE);
+
+        while (stack_pointer < stack_end && access_ok(stack_pointer, sizeof(unsigned long))) {
+            unsigned long addr;
+
+            if (get_user(addr, stack_pointer) == 0) {
+                printk(KERN_INFO "%lx ", addr);
+            } else {
+                printk(KERN_INFO "Unreadable ");
+            }
+
+            stack_pointer++;
+        }
+
+        printk(KERN_INFO "\n");
+    } else {
+        printk(KERN_INFO "Failed to get registers for PID %d\n", task->pid);
+    }
+}
+
+
 /* kprobe pre_handler: called just before the probed instruction is executed */
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
@@ -87,13 +132,18 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 
 	struct task_struct *task;
 	pid_t pid;
+	char *stack_trace;
 	struct hentry *found_entry;
 
-    // Access the task_struct pointer from the "task" field of pt_regs
-    task = (struct task_struct *)regs->di;
+	// Access the task_struct pointer from the "task" field of pt_regs
+	task = (struct task_struct *)regs->di;
 
 	// Do something with the task_struct pointer
-    pr_info("pick_next_task_fair called. task_struct pointer: %p\n", task);
+    pr_info("stack_trace_save called. task_struct pointer: %p\n", task);
+
+	if (task != NULL) {
+		get_stack_trace(task);
+	}
 
     // Get the PID from the task_struct
     pid = task_pid_nr(task);
