@@ -78,15 +78,7 @@ static int perftop_show(struct seq_file *m, void *v) {
 
 	// Save the stack trace for the current task
 
-	depth = stack_trace_save(stack_trace, MAX_STACK_TRACE_DEPTH, 0);
-
-	// Print the stack trace
-	// seq_printf(m, "Stack Trace:\n");
-	// if (depth > 0) {
-	// 	print_stack_trace(m, depth, (unsigned long *)stack_trace);
-	// } else {
-	//     seq_printf(m, "No stack trace available\n");
-	// }
+	// depth = stack_trace_save(stack_trace, MAX_STACK_TRACE_DEPTH, 0);
 
     return 0;
 }
@@ -256,7 +248,6 @@ struct hentry *find_entry_by_pid(int pid) {
 
 static int store_value_hash_table(int pid, int run_count)
 {
-
 	struct hentry *entry = kmalloc(sizeof(struct hentry), GFP_ATOMIC);
 	if (!entry) {
 		pr_info("Failed to allocate memory for hentry\n");
