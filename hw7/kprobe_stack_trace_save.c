@@ -58,7 +58,7 @@ struct hentry {
 #define MAX_STACK_TRACE_DEPTH 16  // Set the depth according to your needs
 
 static int perftop_show(struct seq_file *m, void *v) {
-    struct task_struct *task = current;
+    // struct task_struct *task = current;
     unsigned bkt;
     struct hentry *current_elem;
 
