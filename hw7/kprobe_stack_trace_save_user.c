@@ -1,34 +1,33 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Here's a sample kernel module showing the use of kprobes to dump a
- * stack trace and selected registers when pick_next_task_fair() is called.
+ * stack trace and selected registers when stack_trace_save() is called.
  *
  * For more information on theory of operation of kprobes, see
  * Documentation/trace/kprobes.rst
  *
  * You will see the trace data in /var/log/messages and on the console
- * whenever pick_next_task_fair() is invoked to create a new process.
+ * whenever stack_trace_save() is invoked to create a new process.
  */
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
-
 
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/kprobes.h>
 #include <linux/types.h>
 #include <linux/atomic.h>
-#include <linux/stacktrace.h>
 #include <linux/hashtable.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
-#include <linux/bitmap.h>
+#include <linux/ptrace.h>
+#include <linux/stacktrace.h>
+
 
 static char symbol[KSYM_NAME_LEN] = "stack_trace_save";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
-
 
 /* For each probe you need to allocate a kprobe structure */
 static struct kprobe kp = {
@@ -50,47 +49,41 @@ static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
 struct hentry {
 	int pid;
 	int run_count;
+	char *stack_trace;
+	struct stack_trace *trace;
 	struct hlist_node hash;
 };
 /////////////////// HASH TABLE END ///////////////////////////
 
+struct stack_trace my_stack_trace;
 
-#define MAX_STACK_TRACE_DEPTH 16  // Set the depth according to your needs
+void get_current_stack_trace(struct stack_trace *trace) {
+    struct task_struct *task = current;
+
+    pr_info("Getting stack trace for current process (PID %d)\n", task->pid);
+
+    // Initialize the stack trace structure
+    stack_trace_init(trace);
+
+    // Save the stack trace of the current process
+    save_stack_trace_tsk(task, trace);
+}
 
 static int perftop_show(struct seq_file *m, void *v) {
-    struct task_struct *task = current;
-    unsigned bkt;
     struct hentry *current_elem;
+    // struct stack_trace *trace;
+    unsigned bkt;
 
     seq_printf(m, "Hello Perftop from kprobe_stack_trace_save\n");
+
+	get_current_stack_trace(&my_stack_trace);
 
     hash_for_each(myhtable, bkt, current_elem, hash) {
         seq_printf(m,"Element PID: %d\n", current_elem->pid);
         seq_printf(m, "Element run_count: %d\n", current_elem->run_count);
     }
-
-    // Save the stack trace using stack_trace_save_tsk
-	DECLARE_BITMAP(stack_trace, MAX_STACK_TRACE_DEPTH);
-	int depth;
-
-	// Initialize the bitmap
-	bitmap_zero(stack_trace, MAX_STACK_TRACE_DEPTH);
-
-	// Save the stack trace for the current task
-
-	depth = stack_trace_save(stack_trace, MAX_STACK_TRACE_DEPTH, 0);
-
-	// Print the stack trace
-	// seq_printf(m, "Stack Trace:\n");
-	// if (depth > 0) {
-	// 	print_stack_trace(m, depth, (unsigned long *)stack_trace);
-	// } else {
-	//     seq_printf(m, "No stack trace available\n");
-	// }
-
     return 0;
 }
-
 
 EXPORT_SYMBOL(perftop_show);
 
@@ -108,6 +101,53 @@ static const struct file_operations perftops_fops = {
 
 atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
 
+/* Function to get the stack trace for a given task */
+/* and print it */
+char *get_stack_trace(struct task_struct *task) {
+    struct pt_regs *regs;
+    unsigned long *stack_pointer;
+    unsigned long *stack_end;
+	char *stack_trace = kmalloc(PAGE_SIZE, GFP_ATOMIC);
+
+	pr_info("inside get_stack_trace\n");
+
+    if (!stack_trace) {
+		pr_info("Failed to allocate memory for stack_trace\n");
+        return NULL;
+    }
+
+    stack_trace[0] = '\0';  // Initialize the string to an empty string
+
+	regs = task_pt_regs(task);
+
+    if (regs) {
+		pr_info("Stack Trace for PID %d:\n", task->pid);
+        
+        stack_pointer = (unsigned long *)regs->sp;
+        stack_end = (unsigned long *)(task->stack + THREAD_SIZE);
+
+        while (stack_pointer < stack_end && access_ok(stack_pointer, sizeof(unsigned long))) {
+            unsigned long addr;
+
+            if (get_user(addr, stack_pointer) == 0) {
+				/* simply print*/
+				pr_info("Stack Pointer: %lx\n", *stack_pointer);
+
+				/* test on second round of testing*/
+				/* Format a string and place it in a buffer*/
+				/* snprintf(stack_trace + strlen(stack_trace), PAGE_SIZE - strlen(stack_trace), "%lx ", addr); */
+            } else {
+				pr_info("Unreadable \n");
+            }
+
+            stack_pointer++;
+        }
+    } else {
+		pr_info("Failed to get registers for PID %d\n", task->pid);
+    }
+	return stack_trace;
+}
+
 /* kprobe pre_handler: called just before the probed instruction is executed */
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
@@ -115,13 +155,28 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 
 	struct task_struct *task;
 	pid_t pid;
+	char *stack_trace;
 	struct hentry *found_entry;
 
-    // Access the task_struct pointer from the "task" field of pt_regs
-    task = (struct task_struct *)regs->di;
+	// Access the task_struct pointer from the "task" field of pt_regs
+	task = (struct task_struct *)regs->di;
+	// stack_pointer = (unsigned long *)regs->sp;
+	// pr_info("stack_pointer: %lx\n", *stack_pointer);
 
 	// Do something with the task_struct pointer
     pr_info("stack_trace_save called. task_struct pointer: %p\n", task);
+
+	if (task != NULL) {
+		stack_trace = get_stack_trace(task);
+
+		/* we don't yet use stack_trace*/
+		if (stack_trace != NULL) {
+			pr_info("Stack trace for PID %d: %s\n", task->pid, stack_trace);
+			kfree(stack_trace);
+		}
+	} else {
+		pr_info("task_struct pointer is NULL\n");
+	}
 
     // Get the PID from the task_struct
     pid = task_pid_nr(task);
