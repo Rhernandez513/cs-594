@@ -19,7 +19,6 @@
 #include <linux/types.h>
 #include <linux/atomic.h>
 #include <linux/stacktrace.h>
-#include <linux/hashtable.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/proc_fs.h>
@@ -35,46 +34,22 @@ static struct kprobe kp = {
 	.symbol_name	= symbol,
 };
 
-struct hentry *find_entry_by_pid(int pid);
-static int store_value_hash_table(int pid, int run_count);
-static void destroy_hash_table_and_free(void);
 
-/////////////////// HASH TABLE BEGIN ///////////////////////////
-/*
- * Let's make our hash table have 2^10 = 1024 bins
- * */
-#define MY_HASH_TABLE_BINS 10
-static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
-
-/* Hashtable entry struct */
-struct hentry {
-	int pid;
-	int run_count;
-	struct hlist_node hash;
-};
-/////////////////// HASH TABLE END ///////////////////////////
-
-
-#define MAX_STACK_TRACE_DEPTH 16  // Set the depth according to your needs
+#define MAX_STACK_TRACE_DEPTH 256  // Set the depth according to your needs
 
 static int perftop_show(struct seq_file *m, void *v) {
     // struct task_struct *task = current;
-    unsigned bkt;
-    struct hentry *current_elem;
+    // unsigned bkt;
+    // struct hentry *current_elem;
 
     seq_printf(m, "Hello Perftop from kprobe_stack_trace_save\n");
 
-    hash_for_each(myhtable, bkt, current_elem, hash) {
-        seq_printf(m,"Element PID: %d\n", current_elem->pid);
-        seq_printf(m, "Element run_count: %d\n", current_elem->run_count);
-    }
-
     // Save the stack trace using stack_trace_save_tsk
-	DECLARE_BITMAP(stack_trace, MAX_STACK_TRACE_DEPTH);
-	int depth;
+	// DECLARE_BITMAP(stack_trace, MAX_STACK_TRACE_DEPTH);
+	// int depth;
 
 	// Initialize the bitmap
-	bitmap_zero(stack_trace, MAX_STACK_TRACE_DEPTH);
+	// bitmap_zero(stack_trace, MAX_STACK_TRACE_DEPTH);
 
 	// Save the stack trace for the current task
 
@@ -82,7 +57,6 @@ static int perftop_show(struct seq_file *m, void *v) {
 
     return 0;
 }
-
 
 EXPORT_SYMBOL(perftop_show);
 
@@ -98,47 +72,10 @@ static const struct file_operations perftops_fops = {
     .release = single_release,
 };
 
-atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
-
 /* kprobe pre_handler: called just before the probed instruction is executed */
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
 #ifdef CONFIG_X86
-
-	struct task_struct *task;
-	pid_t pid;
-	struct hentry *found_entry;
-
-    // Access the task_struct pointer from the "task" field of pt_regs
-    task = (struct task_struct *)regs->di;
-
-	// Do something with the task_struct pointer
-    pr_info("stack_trace_save called. task_struct pointer: %p\n", task);
-
-    // Get the PID from the task_struct
-    pid = task_pid_nr(task);
-	// Print the PID using printk with KERN_INFO
-    pr_info("Process ID (PID): %d\n", pid);
-
-    // // Find the entry based on PID
-    found_entry = find_entry_by_pid(pid);
-
-    if (found_entry) {
-        pr_info("Entry found for PID %d\n", pid);
-
-		// Read the run count, store in an atomic variable
-		atomic_set(&atomic_entry_run_count, found_entry->run_count);
-
-		// Increment and set atomically 
-		found_entry->run_count = atomic_add_return(1, &atomic_entry_run_count);
-		pr_info("Incremented run_count for PID %d\n", pid);
-		pr_info("Run count: %d\n", found_entry->run_count);
-    } else {
-		pr_info("Entry not found for PID %d\n", pid);
-		store_value_hash_table(pid, 1);
-		pr_info("Stored new entry for PID %d\n", pid);
-    }
-
 	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->ip, regs->flags);
 #endif
@@ -231,51 +168,8 @@ static int __init kprobe_init(void)
 	return 0;
 }
 
-// Function to find an entry in the hash table based on PID
-struct hentry *find_entry_by_pid(int pid) {
-    struct hentry *entry = NULL;
-
-    hash_for_each_possible(myhtable, entry, hash, pid) {
-        if (entry->pid == pid) {
-            // Entry found, return the pointer to the struct
-            return entry;
-        }
-    }
-
-    // Entry not found
-    return NULL;
-}
-
-static int store_value_hash_table(int pid, int run_count)
-{
-	struct hentry *entry = kmalloc(sizeof(struct hentry), GFP_ATOMIC);
-	if (!entry) {
-		pr_info("Failed to allocate memory for hentry\n");
-		return -ENOMEM;
-	}
-
-	entry->pid = pid;
-	entry->run_count = run_count;
-
-	hash_add(myhtable, &entry->hash, pid);
-
-	return 0;
-}
-
-static void destroy_hash_table_and_free(void)
-{
-	struct hentry *current_elem;
-	unsigned bkt;
-
-	hash_for_each(myhtable, bkt, current_elem, hash) {
-		hash_del(&current_elem->hash);
-		kfree(current_elem);
-	}
-}
-
 static void __exit kprobe_exit(void)
 {
-	destroy_hash_table_and_free();
 	unregister_kprobe(&kp);
 	pr_info("kprobe at %p unregistered\n", kp.addr);
 

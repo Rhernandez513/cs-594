@@ -6,6 +6,7 @@
 # obj-$(CONFIG_SAMPLE_KRETPROBES) += kretprobe_example.o
 
 ifneq ($(KERNELRELEASE),)
+obj-m += hello_world.o
 obj-m += kprobe_stack_trace_save.o
 obj-m += kretprobe_perftop_show.o
 
