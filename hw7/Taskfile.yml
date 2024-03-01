@@ -4,22 +4,22 @@ tasks:
   build:
     cmds:
       - make
-    silent: true
+    silent: false
   run:
     cmds:
       - cat /proc/perftop
-    silent: true
+    silent: false
   load_perftop:
     cmds:
       - sudo insmod kprobe_stack_trace_save.ko
       - sudo insmod kretprobe_perftop_show.ko
-    silent: true
+    silent: false
   unload_perftop:
     cmds:
       - sudo rmmod kprobe_stack_trace_save
       - sudo rmmod kretprobe_perftop_show
-    silent: true
+    silent: false
   clean:
     cmds:
       - make clean
-    silent: true
+    silent: false

@@ -61,6 +61,7 @@ static struct kprobe kp = {
 
 static int perftop_show(struct seq_file *m, void *v) {
     seq_printf(m, "Hello from perftop_show\n");
+	dump_stack();
     return 0;
 }
 
@@ -90,7 +91,6 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 	struct task_struct *task;
 
     printk("Hello from kprobe handler_pre for perftop_show \n");
-	dump_stack();
 
     // Access the task_struct pointer from the "task" field of pt_regs
     task = (struct task_struct *)regs->di;
@@ -239,7 +239,6 @@ struct hentry *find_entry_by_jenkins_hash(u32 jenkins_hash) {
     }
     return NULL;
 }
-
 static int store_value_hash_table(u32 jenkins_hash, struct task_struct *task, int run_count)
 {
 	struct hentry *entry = kmalloc(sizeof(struct hentry), GFP_ATOMIC);
