@@ -158,7 +158,7 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
     if (found_entry) {
 		pr_info("Entry found for jenkins_hash %u\n", hash_result);
 
-		pr_info("ll times in nanoseconds\n");
+		pr_info("All times in nanoseconds\n");
 		pr_info("Last scheduled: %lld ns\n", ktime_to_ns(found_entry->time_stamp));
 		pr_info("Time Stamp Counter is currently: %lld ns\n", ktime_to_ns(time_stamp));
 
@@ -183,8 +183,6 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 		pr_info("Stored new entry for jenkins_hash: %u\n", hash_result);
 		pr_info("All times in nanoseconds\n");
 		pr_info("Started timer, Time Stamp Counter was: %lld ns\n", ktime_to_ns(time_stamp));
-
-		pr_info("Run count: %d\n", found_entry->run_count);
     }
 	return 0;
 }
@@ -283,6 +281,7 @@ static void destroy_hash_table_and_free(void)
 	unsigned bkt;
 
 	hash_for_each(myhtable, bkt, current_elem, hash) {
+		// current_elem->task = NULL;
 		hash_del(&current_elem->hash);
 		kfree(current_elem);
 	}
