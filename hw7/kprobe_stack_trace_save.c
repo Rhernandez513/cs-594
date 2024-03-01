@@ -25,6 +25,7 @@
 #include <linux/seq_file.h>
 #include <linux/bitmap.h>
 #include <linux/jhash.h>
+#include <linux/sched.h>
 
 static char symbol[KSYM_NAME_LEN] = "perftop_show";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
@@ -40,6 +41,7 @@ static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
 struct hentry {
 	int run_count;
 	u32 jenkins_hash;
+	struct task_struct *task;
 	struct hlist_node hash;
 };
 /////////////////// HASH TABLE END ///////////////////////////
@@ -47,7 +49,7 @@ struct hentry {
 #define MAX_STACK_TRACE_DEPTH 256  // Set the depth according to your needs
 
 struct hentry *find_entry_by_jenkins_hash(u32 jenkins_hash);
-static int store_value_hash_table(u32 jenkins_hash, int run_count);
+static int store_value_hash_table(u32 jenkins_hash, struct task_struct *task, int run_count);
 static void destroy_hash_table_and_free(void);
 
 atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
@@ -85,9 +87,16 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
     unsigned int depth;
     unsigned long stack_entries[32];  // Adjust the size as needed
 	struct hentry *found_entry;
+	struct task_struct *task;
 
     printk("Hello from kprobe handler_pre for perftop_show \n");
 	dump_stack();
+
+    // Access the task_struct pointer from the "task" field of pt_regs
+    task = (struct task_struct *)regs->di;
+
+	// Do something with the task_struct pointer
+    pr_info("perftop_show called. task_struct pointer: %p\n", task);
 
     /* Save the stack trace of the calling process */
     depth = stack_trace_save(stack_entries, ARRAY_SIZE(stack_entries), 0);
@@ -120,7 +129,7 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 		pr_info("Run count: %d\n", found_entry->run_count);
     } else {
 		pr_info("Entry not found for jenkins_hash: %u\n", hash_result);
-		store_value_hash_table(hash_result, 1);
+		store_value_hash_table(hash_result, task, 1);
 		pr_info("Stored new entry for jenkins_hash: %u\n", hash_result);
 		found_entry = find_entry_by_jenkins_hash(hash_result);
 		pr_info("Run count: %d\n", found_entry->run_count);
@@ -231,7 +240,7 @@ struct hentry *find_entry_by_jenkins_hash(u32 jenkins_hash) {
     return NULL;
 }
 
-static int store_value_hash_table(u32 jenkins_hash, int run_count)
+static int store_value_hash_table(u32 jenkins_hash, struct task_struct *task, int run_count)
 {
 	struct hentry *entry = kmalloc(sizeof(struct hentry), GFP_ATOMIC);
 
@@ -240,6 +249,7 @@ static int store_value_hash_table(u32 jenkins_hash, int run_count)
 		return -ENOMEM;
 	}
 
+	entry->task = task;
 	entry->jenkins_hash = jenkins_hash;
 	entry->run_count = run_count;
 
@@ -255,6 +265,8 @@ static void destroy_hash_table_and_free(void)
 
 	hash_for_each(myhtable, bkt, current_elem, hash) {
 		hash_del(&current_elem->hash);
+		// hash_del(&current_elem->task);
+		current_elem->task = NULL;
 		kfree(current_elem);
 	}
 }
