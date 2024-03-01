@@ -1378,3 +1378,151 @@
 [  246.048267] kprobe_exit: Removed procfs entry perftop
 [  246.108233] kretprobe at 000000009fa263c7 unregistered
 [  246.108236] Missed probing 0 instances of perftop_show
+[  410.253703] kprobe_init: Planted kprobe at 000000009fa263c7
+[  410.253712] kprobe_init: Created procfc entry at perftop
+[  410.319996] Planted return probe at perftop_show: 000000009fa263c7
+[  412.318264] handler_pre: <perftop_show> p->addr = 0x000000009fa263c7, ip = ffffffffc082b001, flags = 0x203
+[  412.318265] Hello from kprobe handler_pre for perftop_show 
+[  412.318266] handler_pre: perftop_show called. task_struct pointer: 000000006c43c351
+[  412.318271] Stack trace depth: 13
+[  412.318272] handler_pre: stack_entries[0] = 0xffffffffc082b164
+[  412.318273] handler_pre: stack_entries[1] = 0xffffffff81176d75
+[  412.318273] handler_pre: stack_entries[2] = 0xffffffff81070ee0
+[  412.318274] handler_pre: stack_entries[3] = 0xffffffff8118d16d
+[  412.318274] handler_pre: stack_entries[4] = 0xffffffffc04a80da
+[  412.318275] handler_pre: stack_entries[5] = 0xffffffffc082b001
+[  412.318275] handler_pre: stack_entries[6] = 0xffffffff81368be3
+[  412.318276] handler_pre: stack_entries[7] = 0xffffffff812d466b
+[  412.318276] handler_pre: stack_entries[8] = 0xffffffff812d473b
+[  412.318277] handler_pre: stack_entries[9] = 0xffffffff812d48a7
+[  412.318277] handler_pre: stack_entries[10] = 0xffffffff812d493a
+[  412.318277] handler_pre: stack_entries[11] = 0xffffffff81004fe7
+[  412.318278] handler_pre: stack_entries[12] = 0xffffffff81c000a4
+[  412.318278] Jenkins Hash Result: 482121239
+[  412.318279] handler_pre: Entry not found for jenkins_hash: 482121239
+[  412.318279] handler_pre: Stored new entry for jenkins_hash: 482121239
+[  412.318280] handler_pre: All times in nanoseconds
+[  412.318280] handler_pre: Started timer, Time Stamp Counter was: 412281946039 ns
+[  412.318281] handler_post: <perftop_show> p->addr = 0x000000009fa263c7, flags = 0x203
+[  412.318282] perftop_show: Begin Stack Dump
+[  412.318284] CPU: 1 PID: 13764 Comm: cat Tainted: G           OE     5.4.0-164-generic #181
+[  412.318284] Hardware name: Dell Inc. PowerEdge C6525/04DK47, BIOS 2.0.3 01/15/2021
+[  412.318285] Call Trace:
+[  412.318289]  dump_stack+0x6d/0x8b
+[  412.318292]  perftop_show+0x2d/0x50 [kprobe_stack_trace_save]
+[  412.318294]  elfcorehdr_read+0x40/0x40
+[  412.318297]  proc_reg_read+0x43/0x70
+[  412.318299]  __vfs_read+0x1b/0x40
+[  412.318299]  vfs_read+0xab/0x160
+[  412.318300]  ksys_read+0x67/0xe0
+[  412.318301]  __x64_sys_read+0x1a/0x20
+[  412.318303]  do_syscall_64+0x57/0x190
+[  412.318305]  entry_SYSCALL_64_after_hwframe+0x5c/0xc1
+[  412.318307] RIP: 0033:0x7f34fee691f2
+[  412.318308] Code: c0 e9 c2 fe ff ff 50 48 8d 3d 8a c9 0a 00 e8 d5 1a 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+[  412.318308] RSP: 002b:00007ffd82e17a18 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+[  412.318310] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007f34fee691f2
+[  412.318311] RDX: 0000000000020000 RSI: 00007f34fe7ca000 RDI: 0000000000000003
+[  412.318311] RBP: 00007f34fe7ca000 R08: 00007f34fe7c9010 R09: 0000000000000000
+[  412.318311] R10: 0000000000000022 R11: 0000000000000246 R12: 000055611d8f11f0
+[  412.318312] R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
+[  412.318313] perftop_show: End Stack Dump
+[  412.318314] perftop_show returned 0 and took 52037 ns to execute
+[  414.567779] handler_pre: <perftop_show> p->addr = 0x000000009fa263c7, ip = ffffffffc082b001, flags = 0x203
+[  414.567781] Hello from kprobe handler_pre for perftop_show 
+[  414.567782] handler_pre: perftop_show called. task_struct pointer: 00000000783020f3
+[  414.567788] Stack trace depth: 13
+[  414.567789] handler_pre: stack_entries[0] = 0xffffffffc082b164
+[  414.567789] handler_pre: stack_entries[1] = 0xffffffff81176d75
+[  414.567790] handler_pre: stack_entries[2] = 0xffffffff81070ee0
+[  414.567790] handler_pre: stack_entries[3] = 0xffffffff8118d16d
+[  414.567791] handler_pre: stack_entries[4] = 0xffffffffc04a80da
+[  414.567792] handler_pre: stack_entries[5] = 0xffffffffc082b001
+[  414.567792] handler_pre: stack_entries[6] = 0xffffffff81368be3
+[  414.567793] handler_pre: stack_entries[7] = 0xffffffff812d466b
+[  414.567793] handler_pre: stack_entries[8] = 0xffffffff812d473b
+[  414.567794] handler_pre: stack_entries[9] = 0xffffffff812d48a7
+[  414.567794] handler_pre: stack_entries[10] = 0xffffffff812d493a
+[  414.567795] handler_pre: stack_entries[11] = 0xffffffff81004fe7
+[  414.567795] handler_pre: stack_entries[12] = 0xffffffff81c000a4
+[  414.567796] Jenkins Hash Result: 3765749546
+[  414.567797] handler_pre: Entry not found for jenkins_hash: 3765749546
+[  414.567797] handler_pre: Stored new entry for jenkins_hash: 3765749546
+[  414.567798] handler_pre: All times in nanoseconds
+[  414.567798] handler_pre: Started timer, Time Stamp Counter was: 414531461934 ns
+[  414.567799] handler_post: <perftop_show> p->addr = 0x000000009fa263c7, flags = 0x203
+[  414.567800] perftop_show: Begin Stack Dump
+[  414.567802] CPU: 5 PID: 13800 Comm: cat Tainted: G           OE     5.4.0-164-generic #181
+[  414.567802] Hardware name: Dell Inc. PowerEdge C6525/04DK47, BIOS 2.0.3 01/15/2021
+[  414.567803] Call Trace:
+[  414.567809]  dump_stack+0x6d/0x8b
+[  414.567812]  perftop_show+0x2d/0x50 [kprobe_stack_trace_save]
+[  414.567815]  elfcorehdr_read+0x40/0x40
+[  414.567818]  proc_reg_read+0x43/0x70
+[  414.567821]  __vfs_read+0x1b/0x40
+[  414.567822]  vfs_read+0xab/0x160
+[  414.567823]  ksys_read+0x67/0xe0
+[  414.567824]  __x64_sys_read+0x1a/0x20
+[  414.567827]  do_syscall_64+0x57/0x190
+[  414.567829]  entry_SYSCALL_64_after_hwframe+0x5c/0xc1
+[  414.567831] RIP: 0033:0x7f529e6d11f2
+[  414.567832] Code: c0 e9 c2 fe ff ff 50 48 8d 3d 8a c9 0a 00 e8 d5 1a 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+[  414.567833] RSP: 002b:00007ffd253ccd28 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+[  414.567835] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007f529e6d11f2
+[  414.567836] RDX: 0000000000020000 RSI: 00007f529e032000 RDI: 0000000000000003
+[  414.567836] RBP: 00007f529e032000 R08: 00007f529e031010 R09: 0000000000000000
+[  414.567837] R10: 0000000000000022 R11: 0000000000000246 R12: 000055dabe2e81f0
+[  414.567837] R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
+[  414.567839] perftop_show: End Stack Dump
+[  414.567840] perftop_show returned 0 and took 63819 ns to execute
+[  417.766415] handler_pre: <perftop_show> p->addr = 0x000000009fa263c7, ip = ffffffffc082b001, flags = 0x203
+[  417.766416] Hello from kprobe handler_pre for perftop_show 
+[  417.766417] handler_pre: perftop_show called. task_struct pointer: 00000000e4b6a0b9
+[  417.766421] Stack trace depth: 13
+[  417.766422] handler_pre: stack_entries[0] = 0xffffffffc082b164
+[  417.766423] handler_pre: stack_entries[1] = 0xffffffff81176d75
+[  417.766423] handler_pre: stack_entries[2] = 0xffffffff81070ee0
+[  417.766424] handler_pre: stack_entries[3] = 0xffffffff8118d16d
+[  417.766424] handler_pre: stack_entries[4] = 0xffffffffc04a80da
+[  417.766425] handler_pre: stack_entries[5] = 0xffffffffc082b001
+[  417.766425] handler_pre: stack_entries[6] = 0xffffffff81368be3
+[  417.766426] handler_pre: stack_entries[7] = 0xffffffff812d466b
+[  417.766427] handler_pre: stack_entries[8] = 0xffffffff812d473b
+[  417.766427] handler_pre: stack_entries[9] = 0xffffffff812d48a7
+[  417.766428] handler_pre: stack_entries[10] = 0xffffffff812d493a
+[  417.766428] handler_pre: stack_entries[11] = 0xffffffff81004fe7
+[  417.766429] handler_pre: stack_entries[12] = 0xffffffff81c000a4
+[  417.766429] Jenkins Hash Result: 1245604363
+[  417.766430] handler_pre: Entry not found for jenkins_hash: 1245604363
+[  417.766431] handler_pre: Stored new entry for jenkins_hash: 1245604363
+[  417.766431] handler_pre: All times in nanoseconds
+[  417.766432] handler_pre: Started timer, Time Stamp Counter was: 417730091788 ns
+[  417.766433] handler_post: <perftop_show> p->addr = 0x000000009fa263c7, flags = 0x203
+[  417.766433] perftop_show: Begin Stack Dump
+[  417.766435] CPU: 3 PID: 13830 Comm: cat Tainted: G           OE     5.4.0-164-generic #181
+[  417.766436] Hardware name: Dell Inc. PowerEdge C6525/04DK47, BIOS 2.0.3 01/15/2021
+[  417.766437] Call Trace:
+[  417.766441]  dump_stack+0x6d/0x8b
+[  417.766443]  perftop_show+0x2d/0x50 [kprobe_stack_trace_save]
+[  417.766445]  elfcorehdr_read+0x40/0x40
+[  417.766448]  proc_reg_read+0x43/0x70
+[  417.766450]  __vfs_read+0x1b/0x40
+[  417.766451]  vfs_read+0xab/0x160
+[  417.766452]  ksys_read+0x67/0xe0
+[  417.766453]  __x64_sys_read+0x1a/0x20
+[  417.766455]  do_syscall_64+0x57/0x190
+[  417.766456]  entry_SYSCALL_64_after_hwframe+0x5c/0xc1
+[  417.766458] RIP: 0033:0x7fd21ac351f2
+[  417.766459] Code: c0 e9 c2 fe ff ff 50 48 8d 3d 8a c9 0a 00 e8 d5 1a 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+[  417.766460] RSP: 002b:00007ffc18dfd4a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+[  417.766461] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007fd21ac351f2
+[  417.766462] RDX: 0000000000020000 RSI: 00007fd21a596000 RDI: 0000000000000003
+[  417.766462] RBP: 00007fd21a596000 R08: 00007fd21a595010 R09: 0000000000000000
+[  417.766463] R10: 0000000000000022 R11: 0000000000000246 R12: 000056047d3361f0
+[  417.766463] R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
+[  417.766464] perftop_show: End Stack Dump
+[  417.766465] perftop_show returned 0 and took 52588 ns to execute
+[  423.524378] kprobe_exit: kprobe at 000000009fa263c7 unregistered
+[  423.524381] kprobe_exit: Removed procfs entry perftop
+[  423.600405] kretprobe at 000000009fa263c7 unregistered
+[  423.600408] Missed probing 0 instances of perftop_show
