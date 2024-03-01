@@ -12,7 +12,6 @@
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
 
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/kprobes.h>
@@ -28,12 +27,10 @@
 static char symbol[KSYM_NAME_LEN] = "perftop_show";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
 
-
 /* For each probe you need to allocate a kprobe structure */
 static struct kprobe kp = {
 	.symbol_name	= symbol,
 };
-
 
 #define MAX_STACK_TRACE_DEPTH 256  // Set the depth according to your needs
 
@@ -61,6 +58,7 @@ static const struct file_operations perftops_fops = {
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
 #ifdef CONFIG_X86
+	int i;
     unsigned int depth;
     unsigned long stack_entries[32];  // Adjust the size as needed
 
@@ -71,6 +69,12 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 
     /* Print the stack trace with KERN_INFO level and depth */
     printk(KERN_INFO "Stack trace depth: %u\n", depth);
+
+	i = 0;
+	while (i < depth) {
+		pr_info("stack_entries[%d] = 0x%lx\n", i, stack_entries[i]);
+		i++;
+	}
 
 	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->ip, regs->flags);
