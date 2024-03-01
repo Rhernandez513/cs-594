@@ -10,7 +10,6 @@ int hello_init(void) {
     /* Save the stack trace of the calling process */
     depth = stack_trace_save(stack_entries, ARRAY_SIZE(stack_entries), 0);
 
-
     /* Print the stack trace with KERN_INFO level and depth */
     printk(KERN_INFO "Stack trace depth: %u\n", depth);
 

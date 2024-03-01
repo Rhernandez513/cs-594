@@ -25,7 +25,7 @@
 #include <linux/seq_file.h>
 #include <linux/bitmap.h>
 
-static char symbol[KSYM_NAME_LEN] = "stack_trace_save";
+static char symbol[KSYM_NAME_LEN] = "perftop_show";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
 
 
@@ -42,7 +42,7 @@ static int perftop_show(struct seq_file *m, void *v) {
     // unsigned bkt;
     // struct hentry *current_elem;
 
-    seq_printf(m, "Hello Perftop from kprobe_stack_trace_save\n");
+    seq_printf(m, "Hello from perftop_show\n");
 
     // Save the stack trace using stack_trace_save_tsk
 	// DECLARE_BITMAP(stack_trace, MAX_STACK_TRACE_DEPTH);
@@ -76,6 +76,17 @@ static const struct file_operations perftops_fops = {
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
 #ifdef CONFIG_X86
+    unsigned int depth;
+    unsigned long stack_entries[32];  // Adjust the size as needed
+
+    printk("Hello from kprobe handler_pre for stack_trace_save\n");
+
+    /* Save the stack trace of the calling process */
+    depth = stack_trace_save(stack_entries, ARRAY_SIZE(stack_entries), 0);
+
+    /* Print the stack trace with KERN_INFO level and depth */
+    printk(KERN_INFO "Stack trace depth: %u\n", depth);
+
 	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->ip, regs->flags);
 #endif
