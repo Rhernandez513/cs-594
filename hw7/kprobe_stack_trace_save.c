@@ -17,6 +17,7 @@
 #include <linux/kprobes.h>
 #include <linux/types.h>
 #include <linux/atomic.h>
+#include <linux/hashtable.h>
 #include <linux/stacktrace.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
@@ -28,16 +29,36 @@
 static char symbol[KSYM_NAME_LEN] = "perftop_show";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
 
+/////////////////// HASH TABLE BEGIN ///////////////////////////
+/*
+ * Let's make our hash table have 2^10 = 1024 bins
+ * */
+#define MY_HASH_TABLE_BINS 10
+static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
+
+/* Hashtable entry struct */
+struct hentry {
+	int run_count;
+	u32 jenkins_hash;
+	struct hlist_node hash;
+};
+/////////////////// HASH TABLE END ///////////////////////////
+
+#define MAX_STACK_TRACE_DEPTH 256  // Set the depth according to your needs
+
+struct hentry *find_entry_by_jenkins_hash(u32 jenkins_hash);
+static int store_value_hash_table(u32 jenkins_hash, int run_count);
+static void destroy_hash_table_and_free(void);
+
+atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
+
 /* For each probe you need to allocate a kprobe structure */
 static struct kprobe kp = {
 	.symbol_name	= symbol,
 };
 
-#define MAX_STACK_TRACE_DEPTH 256  // Set the depth according to your needs
-
 static int perftop_show(struct seq_file *m, void *v) {
     seq_printf(m, "Hello from perftop_show\n");
-
     return 0;
 }
 
@@ -63,8 +84,10 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 	u32 hash_result;
     unsigned int depth;
     unsigned long stack_entries[32];  // Adjust the size as needed
+	struct hentry *found_entry;
 
-    printk("Hello from kprobe handler_pre for stack_trace_save\n");
+    printk("Hello from kprobe handler_pre for perftop_show \n");
+	dump_stack();
 
     /* Save the stack trace of the calling process */
     depth = stack_trace_save(stack_entries, ARRAY_SIZE(stack_entries), 0);
@@ -75,11 +98,33 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 	i = 0;
 	while (i < depth) {
 		pr_info("stack_entries[%d] = 0x%lx\n", i, stack_entries[i]);
-		i++;
+		++i;
 	}
 
 	hash_result = jhash(stack_entries, sizeof(stack_entries), 0);
 	printk(KERN_INFO "Jenkins Hash Result: %u\n", hash_result);
+
+    // // Find the entry based on jenkins_hash
+    found_entry = find_entry_by_jenkins_hash(hash_result);
+
+    if (found_entry) {
+		pr_info("Entry found for jenkins_hash %u\n", hash_result);
+
+		// Read the run count, store in an atomic variable
+		atomic_set(&atomic_entry_run_count, found_entry->run_count);
+
+		// Increment and set atomically 
+		found_entry->run_count = atomic_add_return(1, &atomic_entry_run_count);
+
+		pr_info("Incremented run_count for jenkins_hash: %u\n", hash_result);
+		pr_info("Run count: %d\n", found_entry->run_count);
+    } else {
+		pr_info("Entry not found for jenkins_hash: %u\n", hash_result);
+		store_value_hash_table(hash_result, 1);
+		pr_info("Stored new entry for jenkins_hash: %u\n", hash_result);
+		found_entry = find_entry_by_jenkins_hash(hash_result);
+		pr_info("Run count: %d\n", found_entry->run_count);
+    }
 
 	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->ip, regs->flags);
@@ -173,8 +218,50 @@ static int __init kprobe_init(void)
 	return 0;
 }
 
+/* Function to find an entry in the hash table based 
+ * on the stack traces jenkins hash
+ */
+struct hentry *find_entry_by_jenkins_hash(u32 jenkins_hash) {
+    struct hentry *entry = NULL;
+    hash_for_each_possible(myhtable, entry, hash, jenkins_hash) {
+        if (entry->jenkins_hash == jenkins_hash) {
+            return entry;
+        }
+    }
+    return NULL;
+}
+
+static int store_value_hash_table(u32 jenkins_hash, int run_count)
+{
+	struct hentry *entry = kmalloc(sizeof(struct hentry), GFP_ATOMIC);
+
+	if (!entry) {
+		pr_info("Failed to allocate memory for hentry\n");
+		return -ENOMEM;
+	}
+
+	entry->jenkins_hash = jenkins_hash;
+	entry->run_count = run_count;
+
+	hash_add(myhtable, &entry->hash, jenkins_hash);
+
+	return 0;
+}
+
+static void destroy_hash_table_and_free(void)
+{
+	struct hentry *current_elem;
+	unsigned bkt;
+
+	hash_for_each(myhtable, bkt, current_elem, hash) {
+		hash_del(&current_elem->hash);
+		kfree(current_elem);
+	}
+}
+
 static void __exit kprobe_exit(void)
 {
+	destroy_hash_table_and_free();
 	unregister_kprobe(&kp);
 	pr_info("kprobe at %p unregistered\n", kp.addr);
 
