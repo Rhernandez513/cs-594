@@ -23,6 +23,7 @@
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #include <linux/bitmap.h>
+#include <linux/jhash.h>
 
 static char symbol[KSYM_NAME_LEN] = "perftop_show";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
@@ -59,6 +60,7 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
 #ifdef CONFIG_X86
 	int i;
+	u32 hash_result;
     unsigned int depth;
     unsigned long stack_entries[32];  // Adjust the size as needed
 
@@ -75,6 +77,9 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 		pr_info("stack_entries[%d] = 0x%lx\n", i, stack_entries[i]);
 		i++;
 	}
+
+	hash_result = jhash(stack_entries, sizeof(stack_entries), 0);
+	printk(KERN_INFO "Jenkins Hash Result: %u\n", hash_result);
 
 	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->ip, regs->flags);
