@@ -38,22 +38,7 @@ static struct kprobe kp = {
 #define MAX_STACK_TRACE_DEPTH 256  // Set the depth according to your needs
 
 static int perftop_show(struct seq_file *m, void *v) {
-    // struct task_struct *task = current;
-    // unsigned bkt;
-    // struct hentry *current_elem;
-
     seq_printf(m, "Hello from perftop_show\n");
-
-    // Save the stack trace using stack_trace_save_tsk
-	// DECLARE_BITMAP(stack_trace, MAX_STACK_TRACE_DEPTH);
-	// int depth;
-
-	// Initialize the bitmap
-	// bitmap_zero(stack_trace, MAX_STACK_TRACE_DEPTH);
-
-	// Save the stack trace for the current task
-
-	// depth = stack_trace_save(stack_trace, MAX_STACK_TRACE_DEPTH, 0);
 
     return 0;
 }
