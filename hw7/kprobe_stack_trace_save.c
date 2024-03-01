@@ -284,7 +284,6 @@ static void destroy_hash_table_and_free(void)
 
 	hash_for_each(myhtable, bkt, current_elem, hash) {
 		hash_del(&current_elem->hash);
-		current_elem->task = NULL;
 		kfree(current_elem);
 	}
 }
