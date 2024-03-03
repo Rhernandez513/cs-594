@@ -124,8 +124,8 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 	u32 hash_result;
 	ktime_t time_stamp;
 	s64 time_delta_ns;
-    unsigned int depth;
-    unsigned long stack_entries[32];  // Adjust the size as needed
+        unsigned int depth;
+        unsigned long stack_entries[32];  // Adjust the size as needed
 	struct hentry *found_entry;
 	struct task_struct *task;
 
@@ -154,7 +154,7 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 
     // // Find the entry based on jenkins_hash
     found_entry = find_entry_by_jenkins_hash(hash_result);
-	time_stamp = ktime_get();
+    time_stamp = ktime_get();
     if (found_entry) {
 		pr_info("Entry found for jenkins_hash %u\n", hash_result);
 
