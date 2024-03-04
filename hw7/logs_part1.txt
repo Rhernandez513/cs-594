@@ -1,0 +1,80 @@
+[ 5645.841824] kprobe_init: Planted kprobe at 0000000015ded10f
+[ 5645.841830] kprobe_init: Created procfc entry at perftop
+[ 5645.910208] Planted return probe at perftop_show: 0000000015ded10f
+[ 5654.399870] Hello from kprobe handler_pre for perftop_show 
+[ 5654.399873] CPU: 10 PID: 38004 Comm: cat Tainted: G        W  OE     5.4.0-164-generic #181
+[ 5654.399874] Hardware name: Dell Inc. PowerEdge C6525/04DK47, BIOS 2.0.3 01/15/2021
+[ 5654.399874] Call Trace:
+[ 5654.399882]  dump_stack+0x6d/0x8b
+[ 5654.399887]  handler_pre+0x46/0x376 [kprobe_stack_trace_save]
+[ 5654.399890]  ? __wake_up+0x13/0x20
+[ 5654.399893]  ? __d_lookup_done+0x75/0xe0
+[ 5654.399895]  ? rmqueue+0x128/0xf00
+[ 5654.399897]  ? kmem_cache_alloc+0x178/0x230
+[ 5654.399898]  ? seq_open+0x2f/0x90
+[ 5654.399899]  ? seq_open+0x55/0x90
+[ 5654.399901]  ? recalibrate_cpu_khz+0x10/0x10
+[ 5654.399903]  ? ktime_get+0x3e/0xa0
+[ 5654.399905]  ? _raw_spin_unlock_irqrestore+0x18/0x20
+[ 5654.399906]  ? perftop_show+0x5/0x20 [kprobe_stack_trace_save]
+[ 5654.399908]  aggr_pre_handler+0x45/0x80
+[ 5654.399909]  ? perftop_show+0x1/0x20 [kprobe_stack_trace_save]
+[ 5654.399911]  kprobe_ftrace_handler+0x90/0xf0
+[ 5654.399912]  ? seq_read+0xdc/0x490
+[ 5654.399914]  ftrace_ops_assist_func+0x8d/0x120
+[ 5654.399916]  ? mem_cgroup_commit_charge+0x68/0x490
+[ 5654.399918]  0xffffffffc04510da
+[ 5654.399920] RIP: 0010:perftop_show+0x1/0x20 [kprobe_stack_trace_save]
+[ 5654.399924] Code: Bad RIP value.
+[ 5654.399925] RSP: 0018:ffffc90040ddfe08 EFLAGS: 00000203 ORIG_RAX: 0000000000000001
+[ 5654.399927] RAX: ffffffffc082f000 RBX: 0000000000000000 RCX: 0000000000000000
+[ 5654.399927] RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff888181e3af00
+[ 5654.399928] RBP: ffffc90040ddfe68 R08: ffffe8fffe8b21c0 R09: ffff8881823701c0
+[ 5654.399928] R10: ffff88812ccf9000 R11: 0000000000000000 R12: ffff888181e3af00
+[ 5654.399929] R13: ffff88802fdb8600 R14: ffff888181e3af28 R15: 0000000000000001
+[ 5654.399930]  ? 0xffffffffc082f000
+[ 5654.399931]  ? perftop_show+0x5/0x20 [kprobe_stack_trace_save]
+[ 5654.399932]  ? seq_read+0xdc/0x490
+[ 5654.399933]  ? perftop_show+0x5/0x20 [kprobe_stack_trace_save]
+[ 5654.399934]  ? elfcorehdr_read+0x40/0x40
+[ 5654.399937]  proc_reg_read+0x43/0x70
+[ 5654.399938]  __vfs_read+0x1b/0x40
+[ 5654.399939]  vfs_read+0xab/0x160
+[ 5654.399940]  ksys_read+0x67/0xe0
+[ 5654.399941]  __x64_sys_read+0x1a/0x20
+[ 5654.399943]  do_syscall_64+0x57/0x190
+[ 5654.399944]  entry_SYSCALL_64_after_hwframe+0x5c/0xc1
+[ 5654.399945] RIP: 0033:0x7f18b32be1f2
+[ 5654.399946] Code: c0 e9 c2 fe ff ff 50 48 8d 3d 8a c9 0a 00 e8 d5 1a 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+[ 5654.399946] RSP: 002b:00007ffdc8f61198 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+[ 5654.399947] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007f18b32be1f2
+[ 5654.399948] RDX: 0000000000020000 RSI: 00007f18b2c1f000 RDI: 0000000000000003
+[ 5654.399948] RBP: 00007f18b2c1f000 R08: 00007f18b2c1e010 R09: 0000000000000000
+[ 5654.399949] R10: 0000000000000022 R11: 0000000000000246 R12: 000055fe0a63e1f0
+[ 5654.399949] R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
+[ 5654.399951] handler_pre: perftop_show called. task_struct pointer: 000000007c61e39c
+[ 5654.399953] Stack trace depth: 13
+[ 5654.399953] handler_pre: stack_entries[0] = 0xffffffffc082f117
+[ 5654.399954] handler_pre: stack_entries[1] = 0xffffffff81176d75
+[ 5654.399954] handler_pre: stack_entries[2] = 0xffffffff81070ee0
+[ 5654.399955] handler_pre: stack_entries[3] = 0xffffffff8118d16d
+[ 5654.399955] handler_pre: stack_entries[4] = 0xffffffffc04510da
+[ 5654.399955] handler_pre: stack_entries[5] = 0xffffffffc082f001
+[ 5654.399956] handler_pre: stack_entries[6] = 0xffffffff81368be3
+[ 5654.399956] handler_pre: stack_entries[7] = 0xffffffff812d466b
+[ 5654.399957] handler_pre: stack_entries[8] = 0xffffffff812d473b
+[ 5654.399957] handler_pre: stack_entries[9] = 0xffffffff812d48a7
+[ 5654.399958] handler_pre: stack_entries[10] = 0xffffffff812d493a
+[ 5654.399958] handler_pre: stack_entries[11] = 0xffffffff81004fe7
+[ 5654.399958] handler_pre: stack_entries[12] = 0xffffffff81c000a4
+[ 5654.399959] Jenkins Hash Result: 3876173809
+[ 5654.399959] handler_pre: Entry not found for jenkins_hash: 3876173809
+[ 5654.399960] handler_pre: Stored new entry for jenkins_hash: 3876173809
+[ 5654.399960] handler_pre: Run count: 1
+[ 5654.399961] handler_pre: <perftop_show> p->addr = 0x0000000015ded10f, ip = ffffffffc082f001, flags = 0x203
+[ 5654.399962] handler_post: <perftop_show> p->addr = 0x0000000015ded10f, flags = 0x203
+[ 5654.399963] perftop_show returned 0 and took 94196 ns to execute
+[ 6025.978500] kprobe_exit: kprobe at 0000000015ded10f unregistered
+[ 6025.978505] kprobe_exit: Removed procfs entry perftop
+[ 6026.042480] kretprobe at 0000000015ded10f unregistered
+[ 6026.042481] Missed probing 0 instances of perftop_show
