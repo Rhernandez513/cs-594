@@ -1,0 +1,25 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - make
+    silent: false
+  run:
+    cmds:
+      - cat /proc/perftop
+    silent: false
+  load_perftop:
+    cmds:
+      - sudo insmod kprobe_stack_trace_save.ko
+      - sudo insmod kretprobe_perftop_show.ko
+    silent: false
+  unload_perftop:
+    cmds:
+      - sudo rmmod kprobe_stack_trace_save
+      - sudo rmmod kretprobe_perftop_show
+    silent: false
+  clean:
+    cmds:
+      - make clean
+    silent: false
