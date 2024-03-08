@@ -19,4 +19,4 @@ default:
 endif
 
 clean:
-	rm *.ko *.mod modules.order .kprobe_stack_trace_save.o.d
+	rm *.ko *.mod modules.order

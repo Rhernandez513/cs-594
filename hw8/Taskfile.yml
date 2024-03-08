@@ -9,6 +9,14 @@ tasks:
     cmds:
       - cat /proc/perftop
     silent: false
+  load_rbtree:
+    cmds:
+      - sudo insmod rbtree.ko
+    silent: false
+  unload_rbtree:
+    cmds:
+      - sudo rmmod rbtree
+    silent: false
   load_perftop:
     cmds:
       - sudo insmod kprobe_stack_trace_save.ko
