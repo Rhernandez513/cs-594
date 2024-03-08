@@ -67,24 +67,6 @@ void delete_node(struct my_rb_node_data *data) {
     rb_erase(&(data->rb_node), &my_rbtree);
 }
 
-// // Function to cleanup and free Red-Black Tree
-// int cleanup_rbtree(void) {
-//     struct my_rb_node_data *data, *tmp;
-//     struct rb_node *node;
-//     int bkt;
-
-//     hash_for_each_safe(my_rbtree, bkt, tmp, node, my_rb_node_data) {
-//         data = rb_entry(node, struct my_rb_node_data, rb_node);
-//         rb_erase(&data->rb_node, &my_rbtree);
-//         // rb_erase(&data->rb_node, &my_rbtree[bkt]);
-//         kfree(data);  // Free the allocated memory
-//     }
-
-//     // After deleting all nodes, destroy the HashTable
-//     // hash_init(my_rbtree);
-//     return 0;
-// }
-
 // Function to recursively traverse and free the Red-Black Tree
 void cleanup_rb_tree(struct rb_node *node) {
     if (node != NULL) {
@@ -97,7 +79,6 @@ void cleanup_rb_tree(struct rb_node *node) {
         kfree(entry);
     }
 }
-
 
 static int example_usage_two(void) {
     struct my_rb_node_data data1 = { .cumulative_time = 10, .hash_result = 123, .pid = 1 };
