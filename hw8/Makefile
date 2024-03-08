@@ -8,6 +8,7 @@
 ifneq ($(KERNELRELEASE),)
 obj-m += kprobe_stack_trace_save.o
 obj-m += kretprobe_perftop_show.o
+obj-m += rbtree.o
 
 else
 KDIR := /lib/modules/$(shell uname -r)/build
