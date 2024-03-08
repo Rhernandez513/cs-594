@@ -61,7 +61,7 @@ struct my_rb_node_data *search_node_by_time(s64 cumulative_time) {
 // Function to delete a node from Red-Black Tree and HashTable
 void delete_node(struct my_rb_node_data *data) {
 
-    struct my_rb_node_data *entry = rb_entry(&(data->rb_node), struct my_rb_node_data, rb_node);
+    // struct my_rb_node_data *entry = rb_entry(&(data->rb_node), struct my_rb_node_data, rb_node);
 
     pr_info("In delete_node\n");
 
@@ -80,8 +80,9 @@ void delete_node(struct my_rb_node_data *data) {
     pr_info("with &(data->rb_node)=%p, &my_rbtree=%p\n", &(data->rb_node), &my_rbtree);
     rb_erase(&(data->rb_node), &my_rbtree);
 
-    pr_info("rb_erase successful, calling kfree(entry)\n");
-    kfree(entry);  // Don't forget to free the allocated memory
+    pr_info("rb_erase successful, calling kfree(data)\n");
+    // kfree(entry);  // Don't forget to free the allocated memory
+    kfree(data);
 }
 
 // // Function to cleanup and free Red-Black Tree
