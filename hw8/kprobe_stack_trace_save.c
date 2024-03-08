@@ -53,7 +53,6 @@ struct hentry {
 #define MAX_STACK_TRACE_DEPTH 256  // Set the depth according to your needs
 
 struct hentry *find_entry_by_pid(int pid);
-struct hentry *find_entry_by_jenkins_hash(u32 jenkins_hash);
 static int store_value_pid_as_key_hash_table(int pid, u32 jenkins_hash, ktime_t time_stamp, struct task_struct *task, int run_count);
 static void destroy_hash_table_and_free(void);
 
