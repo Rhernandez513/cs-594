@@ -61,12 +61,24 @@ struct my_rb_node_data *search_node_by_time(s64 cumulative_time) {
 // Function to delete a node from Red-Black Tree and HashTable
 void delete_node(struct my_rb_node_data *data) {
 
+    pr_info("In delete_node\n");
+
     if (!data) {
         pr_info("Node not found for deletion\n");
+        pr_info("struct my_rb_node_data was NULL\n");
+        pr_info("Returning\n");
         return;
     }
 
+    pr_info("my_rb_node_data: cumulative_time=%lld, hash_result=%u, pid=%d\n", data->cumulative_time, data->hash_result, data->pid);
+
+    pr_info("Deleting node from Red-Black Tree\n");
+
+    pr_info("calling rb_erase(&(data->rb_node), &my_rbtree)\n")
+    pr_info("with &(data->rb_node)=%p, &my_rbtree=%p\n", &(data->rb_node), &my_rbtree);
     rb_erase(&(data->rb_node), &my_rbtree);
+
+    pr_info("rb_erase successful, calling kfree(data)\n");
     kfree(data);  // Don't forget to free the allocated memory
 }
 
