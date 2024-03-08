@@ -42,6 +42,7 @@ static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
 struct hentry {
 	int run_count;
 	int pid;
+	s64 cumulative_time;
 	u32 jenkins_hash;
 	ktime_t time_stamp;
 	struct task_struct *task;
@@ -130,7 +131,7 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
     unsigned long stack_entries[32];  // Adjust the size as needed
 	struct hentry *found_entry;
 	struct task_struct *task;
-	pid_t pid;
+	int pid;
 
     printk("Hello from kprobe handler_pre for perftop_show \n");
 
@@ -289,10 +290,11 @@ static int store_value_pid_as_key_hash_table(int pid, u32 jenkins_hash, ktime_t 
 
 static void destroy_hash_table_and_free(void)
 {
+	struct hlist_node *tmp;
 	struct hentry *current_elem;
 	unsigned bkt;
 
-	hash_for_each(myhtable, bkt, current_elem, hash) {
+	hash_for_each_safe(myhtable, bkt, tmp, current_elem, hash) {
 		// current_elem->task = NULL;
 		hash_del(&current_elem->hash);
 		kfree(current_elem);
