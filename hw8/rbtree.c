@@ -40,7 +40,8 @@ void my_rb_node_data_insert(struct my_rb_node_data *new_data, struct rb_root *ro
 
 // Function to search for a node in Red-Black Tree based on cumulative time
 struct my_rb_node_data *search_node_by_time(s64 cumulative_time) {
-    struct rb_node *node = my_rbtree[hash_min(cumulative_time, 10)];
+    struct rb_node *node = my_rbtree.rb_node;
+
     struct my_rb_node_data *this_data;
 
     while (node) {
@@ -66,7 +67,7 @@ void delete_node(s64 cumulative_time) {
         return;
     }
 
-    rb_erase(&data->rb_node, &my_rbtree[hash_min(cumulative_time, 10)]);
+    rb_erase(&data->rb_node, &my_rbtree);
     kfree(data);  // Don't forget to free the allocated memory
 }
 
