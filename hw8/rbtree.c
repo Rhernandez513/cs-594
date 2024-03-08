@@ -74,7 +74,7 @@ void delete_node(struct my_rb_node_data *data) {
 
     pr_info("Deleting node from Red-Black Tree\n");
 
-    pr_info("calling rb_erase(&(data->rb_node), &my_rbtree)\n")
+    pr_info("calling rb_erase(&(data->rb_node), &my_rbtree)\n");
     pr_info("with &(data->rb_node)=%p, &my_rbtree=%p\n", &(data->rb_node), &my_rbtree);
     rb_erase(&(data->rb_node), &my_rbtree);
 
