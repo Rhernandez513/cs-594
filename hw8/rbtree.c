@@ -61,7 +61,7 @@ struct my_rb_node_data *search_node_by_time(s64 cumulative_time) {
 // Function to delete a node from Red-Black Tree and HashTable
 void delete_node(struct my_rb_node_data *data) {
 
-    struct my_rb_node_data *entry = rb_entry(data->node, struct my_rb_node_data, rb_node);
+    struct my_rb_node_data *entry = rb_entry(&(data->rb_node), struct my_rb_node_data, rb_node);
 
     pr_info("In delete_node\n");
 
