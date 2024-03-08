@@ -41,6 +41,7 @@ static DEFINE_HASHTABLE(myhtable, MY_HASH_TABLE_BINS);
 /* Hashtable entry struct */
 struct hentry {
 	int run_count;
+	int pid;
 	u32 jenkins_hash;
 	ktime_t time_stamp;
 	struct task_struct *task;
@@ -50,8 +51,9 @@ struct hentry {
 
 #define MAX_STACK_TRACE_DEPTH 256  // Set the depth according to your needs
 
+struct hentry *find_entry_by_pid(int pid);
 struct hentry *find_entry_by_jenkins_hash(u32 jenkins_hash);
-static int store_value_hash_table(u32 jenkins_hash, ktime_t time_stamp, struct task_struct *task, int run_count);
+static int store_value_pid_as_key_hash_table(int pid, u32 jenkins_hash, ktime_t time_stamp, struct task_struct *task, int run_count);
 static void destroy_hash_table_and_free(void);
 
 atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
@@ -124,10 +126,11 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 	u32 hash_result;
 	ktime_t time_stamp;
 	s64 time_delta_ns;
-        unsigned int depth;
-        unsigned long stack_entries[32];  // Adjust the size as needed
+    unsigned int depth;
+    unsigned long stack_entries[32];  // Adjust the size as needed
 	struct hentry *found_entry;
 	struct task_struct *task;
+	pid_t pid;
 
     printk("Hello from kprobe handler_pre for perftop_show \n");
 
@@ -136,6 +139,14 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 
 	// Do something with the task_struct pointer
     pr_info("perftop_show called. task_struct pointer: %p\n", task);
+
+    // Get the PID from the task_struct
+    pid = task_pid_nr(task);
+	// Print the PID using printk with KERN_INFO
+    pr_info("Process ID (PID): %d\n", pid);
+
+    // // Find the entry based on PID
+    found_entry = find_entry_by_pid(pid);
 
     /* Save the stack trace of the calling process */
     depth = stack_trace_save(stack_entries, ARRAY_SIZE(stack_entries), 0);
@@ -152,8 +163,6 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 	hash_result = jhash(stack_entries, sizeof(stack_entries), 0);
 	printk(KERN_INFO "Jenkins Hash Result: %u\n", hash_result);
 
-    // // Find the entry based on jenkins_hash
-    found_entry = find_entry_by_jenkins_hash(hash_result);
     time_stamp = ktime_get();
     if (found_entry) {
 		pr_info("Entry found for jenkins_hash %u\n", hash_result);
@@ -179,8 +188,9 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
     } else {
 		pr_info("Entry not found for jenkins_hash: %u\n", hash_result);
 
-		store_value_hash_table(hash_result, time_stamp, task, 1);
-		pr_info("Stored new entry for jenkins_hash: %u\n", hash_result);
+		store_value_pid_as_key_hash_table(pid, hash_result, time_stamp, task, 1);
+		pr_info("Stored new entry, PID: %d\n", pid);
+		pr_info("Stored new entry, jenkins_hash: %u\n", hash_result);
 		pr_info("All times in nanoseconds\n");
 		pr_info("Started timer, Time Stamp Counter was: %lld ns\n", ktime_to_ns(time_stamp));
     }
@@ -243,21 +253,22 @@ static int __init kprobe_init(void)
 	return 0;
 }
 
-/* Function to find an entry in the hash table based 
- * on the stack traces jenkins hash
- */
-struct hentry *find_entry_by_jenkins_hash(u32 jenkins_hash)
-{
+// Function to find an entry in the hash table based on PID
+struct hentry *find_entry_by_pid(int pid) {
     struct hentry *entry = NULL;
-    hash_for_each_possible(myhtable, entry, hash, jenkins_hash) {
-        if (entry->jenkins_hash == jenkins_hash) {
+
+    hash_for_each_possible(myhtable, entry, hash, pid) {
+        if (entry->pid == pid) {
+            // Entry found, return the pointer to the struct
             return entry;
         }
     }
+
+    // Entry not found
     return NULL;
 }
 
-static int store_value_hash_table(u32 jenkins_hash, ktime_t time_stamp, struct task_struct *task, int run_count)
+static int store_value_pid_as_key_hash_table(int pid, u32 jenkins_hash, ktime_t time_stamp, struct task_struct *task, int run_count)
 {
 	struct hentry *entry = kmalloc(sizeof(struct hentry), GFP_ATOMIC);
 
@@ -267,10 +278,11 @@ static int store_value_hash_table(u32 jenkins_hash, ktime_t time_stamp, struct t
 	}
 
 	entry->task = task;
+	entry->pid = pid;
 	entry->jenkins_hash = jenkins_hash;
 	entry->run_count = run_count;
 
-	hash_add(myhtable, &entry->hash, jenkins_hash);
+	hash_add(myhtable, &entry->hash, pid);
 
 	return 0;
 }
