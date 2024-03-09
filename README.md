@@ -22,12 +22,14 @@ sudo apt install -y build-essential git libssl-dev flex bison wget pkg-config li
 sudo apt install -y qemu-system-x86 debootstrap
 ```
 
-Optional: Install Taskfile.dev for all users
+# Optional Setup
+
+Install Taskfile.dev for all users
 ```sh
 sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 ```
 
-Optional: Install the Github CLI (apt) if needed
+Install the Github CLI (apt)
 ```
 sudo mkdir -p -m 755 /etc/apt/keyrings && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
 && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
