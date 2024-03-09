@@ -126,9 +126,9 @@ static int example_usage_two(void) {
     else
         pr_info("Node not found\n");
 
+    cumulative_time = 15;
     pr_info("Searching for node with cumulative_time=%lld\n", cumulative_time);
     pr_info("Expecting the node to be found\n");
-    cumulative_time = 15;
     result = search_node_by_time(cumulative_time);
     if (result)
         pr_info("Node found: hash_result=%u\n", result->hash_result);
