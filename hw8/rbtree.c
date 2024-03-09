@@ -58,6 +58,20 @@ struct my_rb_node_data *search_node_by_time(s64 cumulative_time) {
     return NULL;  // Node not found
 }
 
+// Function to iterate over the Red-Black Tree and print cumulative time for each node
+void iterate_and_print_rb_tree(struct rb_node *node) {
+    if (node != NULL) {
+        struct my_rb_node_data *entry = rb_entry(node, struct my_rb_node_data, rb_node);
+
+        iterate_and_print_rb_tree(node->rb_left);
+
+        pr_info("Node: cumulative_time=%lld, hash_result=%u, pid=%d\n",
+                entry->cumulative_time, entry->hash_result, entry->pid);
+
+        iterate_and_print_rb_tree(node->rb_right);
+    }
+}
+
 // Function to delete a node from Red-Black Tree and HashTable
 void delete_node(struct my_rb_node_data *data) {
     if (!data) {
@@ -84,6 +98,9 @@ static int example_usage_two(void) {
     struct my_rb_node_data data1 = { .cumulative_time = 10, .hash_result = 123, .pid = 1 };
     struct my_rb_node_data data2 = { .cumulative_time = 5, .hash_result = 456, .pid = 2 };
     struct my_rb_node_data data3 = { .cumulative_time = 15, .hash_result = 789, .pid = 3 };
+    struct my_rb_node_data data4 = { .cumulative_time = 25, .hash_result = 999, .pid = 4 };
+    struct my_rb_node_data data5 = { .cumulative_time = 75, .hash_result = 111, .pid = 5 };
+    struct my_rb_node_data data6 = { .cumulative_time = 2, .hash_result = 345, .pid = 6 };
     struct my_rb_node_data *result;
     s64 cumulative_time;
 
@@ -93,6 +110,9 @@ static int example_usage_two(void) {
     my_rb_node_data_insert(&data1, &my_rbtree);
     my_rb_node_data_insert(&data2, &my_rbtree);
     my_rb_node_data_insert(&data3, &my_rbtree);
+    my_rb_node_data_insert(&data4, &my_rbtree);
+    my_rb_node_data_insert(&data5, &my_rbtree);
+    my_rb_node_data_insert(&data6, &my_rbtree);
 
     // Add more nodes or perform other actions as needed
 
@@ -114,6 +134,10 @@ static int example_usage_two(void) {
         pr_info("Node found: hash_result=%u\n", result->hash_result);
     else
         pr_info("Node not found\n");
+
+    pr_info("Red-Black Tree initialized and nodes inserted.\n");
+    pr_info("Iterating over Red-Black Tree and printing cumulative time, jenkins hash and process ID for each node:\n");
+    iterate_and_print_rb_tree(my_rbtree.rb_node);
 
     pr_info("Running: delete_node(result) on the node we found\n");
     delete_node(result);
