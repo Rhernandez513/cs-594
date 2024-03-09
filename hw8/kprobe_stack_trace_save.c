@@ -27,6 +27,7 @@
 #include <linux/jhash.h>
 #include <linux/sched.h>
 #include <linux/ktime.h>
+#include <linux/rbtree.h>
 
 static char symbol[KSYM_NAME_LEN] = "perftop_show";
 module_param_string(symbol, symbol, KSYM_NAME_LEN, 0644);
@@ -58,6 +59,16 @@ static void destroy_hash_table_and_free(void);
 
 atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
 
+struct my_rb_node_data {
+    struct rb_node rb_node;  // Red-Black Tree Node
+    s64 cumulative_time;     // Key for the Red-Black Tree
+    u32 hash_result;         // Value associated with the key
+    int pid;                 // Value associated with the key
+};
+
+struct rb_root my_rbtree = RB_ROOT; // Initialize the Red-Black Tree root
+// DEFINE_HASHTABLE(my_rbtree, 10);  // Initialize HashTable with size 10
+
 /* For each probe you need to allocate a kprobe structure */
 static struct kprobe kp = {
 	.symbol_name	= symbol,
@@ -84,6 +95,84 @@ static const struct file_operations perftops_fops = {
     .llseek = seq_lseek,
     .release = single_release,
 };
+
+// Function to insert a node into the Red-Black Tree
+void my_rb_node_data_insert(struct my_rb_node_data *new_data, struct rb_root *root) {
+    struct rb_node **new_node = &(root->rb_node), *parent = NULL;
+
+    // Traverse the Red-Black Tree to find the insertion point
+    while (*new_node) {
+        struct my_rb_node_data *this_data = container_of(*new_node, struct my_rb_node_data, rb_node);
+
+        parent = *new_node;
+        if (new_data->cumulative_time < this_data->cumulative_time)
+            new_node = &((*new_node)->rb_left);
+        else if (new_data->cumulative_time > this_data->cumulative_time)
+            new_node = &((*new_node)->rb_right);
+        else
+            return; // Node with the same key already exists, handle accordingly
+    }
+
+    // Initialize the new node and insert it into the Red-Black Tree
+    rb_link_node(&new_data->rb_node, parent, new_node);
+    rb_insert_color(&new_data->rb_node, root);
+}
+
+// Function to search for a node in Red-Black Tree based on cumulative time
+struct my_rb_node_data *search_node_by_time(s64 cumulative_time) {
+    struct rb_node *node = my_rbtree.rb_node;
+
+    struct my_rb_node_data *this_data;
+
+    while (node) {
+        this_data = container_of(node, struct my_rb_node_data, rb_node);
+
+        if (cumulative_time < this_data->cumulative_time)
+            node = node->rb_left;
+        else if (cumulative_time > this_data->cumulative_time)
+            node = node->rb_right;
+        else
+            return this_data;  // Found the node
+    }
+
+    return NULL;  // Node not found
+}
+
+// Function to iterate over the Red-Black Tree and print cumulative time for each node
+void iterate_and_print_rb_tree(struct rb_node *node) {
+    if (node != NULL) {
+        struct my_rb_node_data *entry = rb_entry(node, struct my_rb_node_data, rb_node);
+
+        iterate_and_print_rb_tree(node->rb_left);
+
+        pr_info("Node: cumulative_time=%lld, hash_result=%u, pid=%d\n",
+                entry->cumulative_time, entry->hash_result, entry->pid);
+
+        iterate_and_print_rb_tree(node->rb_right);
+    }
+}
+
+// Function to delete a node from Red-Black Tree and HashTable
+void delete_node(struct my_rb_node_data *data) {
+    if (!data) {
+        pr_info("Node not found for deletion\n");
+        return;
+    }
+    rb_erase(&(data->rb_node), &my_rbtree);
+}
+
+// Function to recursively traverse and free the Red-Black Tree
+void cleanup_rb_tree(struct rb_node *node) {
+    if (node != NULL) {
+        struct my_rb_node_data *entry = rb_entry(node, struct my_rb_node_data, rb_node);
+        
+        cleanup_rb_tree(node->rb_left);
+        cleanup_rb_tree(node->rb_right);
+        
+        rb_erase(node, &RB_ROOT);  // Remove the node from the Red-Black Tree
+        kfree(entry);
+    }
+}
 
 /* kprobe pre_handler: called just before the probed instruction is executed */
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
