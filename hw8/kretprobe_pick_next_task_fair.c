@@ -25,7 +25,7 @@
 #include <linux/ktime.h>
 #include <linux/sched.h>
 
-static char func_name[KSYM_NAME_LEN] = "perftop_show";
+static char func_name[KSYM_NAME_LEN] = "pick_next_task_fair";
 module_param_string(func, func_name, KSYM_NAME_LEN, 0644);
 MODULE_PARM_DESC(func, "Function to kretprobe; this module will report the"
 			" function's execution time");

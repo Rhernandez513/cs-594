@@ -12,8 +12,10 @@ tasks:
   run_pick_next_task_fair:
     cmds:
       - sudo insmod kprobe_pick_next_task_fair.ko
-      - cat /proc/perftop
+      - sudo insmod kretprobe_pick_next_task_fair.ko
+      - cat /proc/perftop > pick_next_task_fair.log
       - sudo rmmod kprobe_pick_next_task_fair
+      - sudo rmmod kretprobe_pick_next_task_fair
       - dmesg > pick_next_task_fair.log
     silent: false
   load_rbtree:
