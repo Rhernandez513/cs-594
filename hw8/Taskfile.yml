@@ -9,6 +9,13 @@ tasks:
     cmds:
       - cat /proc/perftop
     silent: false
+  run_pick_next_task_fair:
+    cmds:
+      - sudo insmod kprobe_pick_next_task_fair.ko
+      - cat /proc/perftop
+      - sudo rmmod kprobe_pick_next_task_fair
+      - dmesg > pick_next_task_fair.log
+    silent: false
   load_rbtree:
     cmds:
       - sudo insmod rbtree.ko
