@@ -8,6 +8,7 @@
 ifneq ($(KERNELRELEASE),)
 obj-m += kprobe_stack_trace_save.o
 obj-m += kretprobe_perftop_show.o
+obj-m += kprobe_pick_next_task_fair.o
 obj-m += rbtree.o
 
 else

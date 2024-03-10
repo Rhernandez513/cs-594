@@ -53,10 +53,11 @@ struct hentry {
 /////////////////// HASH TABLE END ///////////////////////////
 
 static int perftop_show(struct seq_file *m, void *v) {
-    seq_printf(m, "Hello Perftop from kprobe_pick_next_task_fair\n");
-
     struct hentry *current_elem;
     unsigned bkt;
+
+    seq_printf(m, "Hello Perftop from kprobe_pick_next_task_fair\n");
+
     hash_for_each(myhtable, bkt, current_elem, hash) {
         seq_printf(m,"Element PID: %d\n", current_elem->pid);
         seq_printf(m, "Element run_count: %d\n", current_elem->run_count);
@@ -83,11 +84,16 @@ atomic_t atomic_entry_run_count = ATOMIC_INIT(0);
 /* kprobe pre_handler: called just before the probed instruction is executed */
 static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
-#ifdef CONFIG_X86
-
 	struct task_struct *task;
-	pid_t pid;
 	struct hentry *found_entry;
+	int pid;
+
+	pr_info("In handler_pre");
+	// At this point, the current task will be scheduled out
+	pr_info("using 'current' macro current->comm");
+	pr_info("Task scheduled out: %s\n", current->comm);
+	pr_info("using 'current' macro current->pid");
+	pr_info("PID of the task scheduled out: %d\n", current->pid);
 
     // Access the task_struct pointer from the "task" field of pt_regs
     task = (struct task_struct *)regs->di;
@@ -98,6 +104,7 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
     // Get the PID from the task_struct
     pid = task_pid_nr(task);
 	// Print the PID using printk with KERN_INFO
+	pr_info("using the PID from task_pid_nr(task) where task is the task_struct pointer from pt_regs\n");
     pr_info("Process ID (PID): %d\n", pid);
 
     // // Find the entry based on PID
@@ -118,7 +125,7 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 		store_value_hash_table(pid, 1);
 		pr_info("Stored new entry for PID %d\n", pid);
     }
-
+#ifdef CONFIG_X86
 	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->ip, regs->flags);
 #endif
@@ -158,7 +165,14 @@ static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
 /* kprobe post_handler: called after the probed instruction is executed */
 static void __kprobes handler_post(struct kprobe *p, struct pt_regs *regs,
 				unsigned long flags)
-{
+{    
+	pr_info("In handler_post");
+	// At this point, the current task will be scheduled in
+	pr_info("using 'current' macro current->comm");
+	pr_info("Task scheduled in: %s\n", current->comm);
+	pr_info("using 'current' macro current->pid");
+	pr_info("PID of the task scheduled out: %d\n", current->pid);
+
 #ifdef CONFIG_X86
 	pr_info("<%s> p->addr = 0x%p, flags = 0x%lx\n",
 		p->symbol_name, p->addr, regs->flags);
