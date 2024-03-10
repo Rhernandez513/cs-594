@@ -22,7 +22,21 @@ sudo apt install -y build-essential git libssl-dev flex bison wget pkg-config li
 sudo apt install -y qemu-system-x86 debootstrap
 ```
 
+Install files for building and debugging Linux Kernel modules
+
+```sh
+apt install linux-headers-$(uname -r)
+apt install linux-source
+```
+
 # Optional Setup
+
+Install ZSH and Oh-My-ZSH
+
+```sh
+apt install zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
 
 Install Taskfile.dev for all users
 ```sh
