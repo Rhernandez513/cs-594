@@ -171,7 +171,7 @@ static void __kprobes handler_post(struct kprobe *p, struct pt_regs *regs,
 	pr_info("using 'current' macro current->comm");
 	pr_info("Task scheduled in: %s\n", current->comm);
 	pr_info("using 'current' macro current->pid");
-	pr_info("PID of the task scheduled out: %d\n", current->pid);
+	pr_info("PID of the task scheduled in: %d\n", current->pid);
 
 #ifdef CONFIG_X86
 	pr_info("<%s> p->addr = 0x%p, flags = 0x%lx\n",
