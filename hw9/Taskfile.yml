@@ -1,0 +1,15 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - make
+    silent: false
+  run:
+    cmds:
+      - echo "not yet implemented"
+    silent: false
+  clean:
+    cmds:
+      - make clean
+    silent: false
