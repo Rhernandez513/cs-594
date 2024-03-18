@@ -1,6 +1,8 @@
 #include "qemu/osdep.h"
 #include "hw/pci/msi.h"
 #include "hw/pci/pci.h"
+#include <stdlib.h>
+#include <limits.h>
 
 #define TYPE_MY_RNG "my_rng"
 #define MY_RNG(obj) OBJECT_CHECK(my_rng, (obj), TYPE_MY_RNG)
@@ -25,18 +27,39 @@ static uint64_t mmio_read(void *opaque, hwaddr addr, unsigned size) {
     // return ret;
 
     /* TODO implement that function later */
+    my_rng *dev;
+    int r;
+
+    dev = (my_rng *)opaque;
+
+    r = rand();
+
+    // return (uint64_t) r;
+
     return 0x0;
 }
 
 static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
     /* TODO implement that function later*/
+    int seed;
+    my_rng *dev;
+
+    dev = (my_rng *)opaque;
+
+    if (val <= INT_MAX) {
+        seed = (int) val;
+    } else {
+        seed = INT_MAX;
+    }
+
+    srand(seed);
+
     return;
 }
 
 static const MemoryRegionOps my_rng_ops = {
     .read = mmio_read,
     .write = mmio_write,
-    // .endianness = DEVICE_NATIVE_ENDIAN,
 };
 
 static void my_rng_realize(PCIDevice *pdev, Error **errp) {
@@ -48,7 +71,7 @@ static void my_rng_realize(PCIDevice *pdev, Error **errp) {
 
 static void my_rng_class_init(ObjectClass *class, void *data) {
     DeviceClass *dc = DEVICE_CLASS(class);
-    PCEDeviceClass *k = PCI_DEVICE_CLASS(class);
+    PCIDeviceClass *k = PCI_DEVICE_CLASS(class);
 
     k->realize = my_rng_realize;
     k->vendor_id = PCI_VENDOR_ID_QEMU;
