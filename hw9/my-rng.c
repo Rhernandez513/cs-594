@@ -14,33 +14,17 @@ typedef struct {
 } my_rng;
 
 static uint64_t mmio_read(void *opaque, hwaddr addr, unsigned size) {
-    // my_rng *rng = opaque;
-    // uint64_t ret = 0;
-    // switch (addr) {
-    //     case 0:
-    //         ret = rng->seed_register;
-    //         break;
-    //     default:
-    //         ret = 0;
-    //         break;
-    // }
-    // return ret;
-
-    /* TODO implement that function later */
+    int rand_val;
     my_rng *dev;
-    int r;
 
     dev = (my_rng *)opaque;
 
-    r = rand();
+    rand_val = rand();
 
-    // return (uint64_t) r;
-
-    return 0x0;
+    return (uint64_t) rand_val ;
 }
 
 static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
-    /* TODO implement that function later*/
     int seed;
     my_rng *dev;
 
