@@ -8,6 +8,9 @@
         },
         {
             "path": "/users/rherna70/code/qemu-8.2.1"
+        },
+        {
+            "path": "/users/rherna70/code/image"
         }
     ]
 }
