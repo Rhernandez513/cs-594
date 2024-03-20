@@ -1,22 +1,20 @@
 #!/bin/bash
-# QEMU_BIN=${PWD}/qemu-8.2.1/build/qemu-system-x86_64
-QEMU_BIN=/users/rherna70/code/qemu-8.2.1/build/qemu-system-x86_64
+QEMU_BIN=/proj/nros-PG0/rherna70/code/qemu-8.2.1/build/qemu-system-x86_64
 NCPU=4
 MEMSIZE=4G
 
-# KNL_SRC=${PWD}/linux-6.1.72
-KNL_SRC=/users/rherna70/code/linux-6.1.72
+KNL_SRC=/proj/nros-PG0/rherna70/code/linux-6.1.72
 BZIMAGE=${KNL_SRC}/arch/x86/boot/bzImage
-# CMDLINE="nokaslr console=ttyS0 root=/dev/vda1"
-CMDLINE="nokaslr console=ttyS0 root=/dev/sda"
 
-# -drive if=virtio,format=qcow2,file=ubuntu2204.img \
+BOOKWORM_IMAGE=/proj/nros-PG0/rherna70/code/image/bookworm.img
 
 sudo ${QEMU_BIN} \
-  -nographic \
-  -smp ${NCPU} -m ${MEMSIZE} \
-  -device virtio-net-pci,netdev=net0 \
-  -netdev user,id=net0,hostfwd=tcp::2222-:22 \
-  -drive file=/users/rherna70/code/image/bookworm.img,format=raw \
-  -kernel ${BZIMAGE} -append "${CMDLINE}" \
-  -device my_rng
+        -m ${MEMSIZE} \
+        -smp ${NCPU} \
+        -kernel ${BZIMAGE} \
+        -append "console=ttyS0 root=/dev/sda net.ifnames=0" \
+        -drive file=${BOOKWORM_IMAGE},format=raw \
+        -net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:2222-:22 \
+        -net nic,model=e1000 \
+        -nographic \
+        -device my_rng
