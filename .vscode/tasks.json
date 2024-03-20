@@ -1,0 +1,27 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "back=$(pwd) && cd /users/rherna70/code/linux-6.1.72/ && make clean && make defconfig && make -j32 && cd $back"
+        },
+        {
+            "label": "run",
+            "type": "shell",
+             "command" : "/users/rherna70/code/cs-594/hw9/run-bookworm.sh"
+        },
+        {
+            "label" : "build qemu",
+            "type" : "shell",
+            "command" : "back=$(pwd) && cd /users/rherna70/code/qemu-8.2.1/ && ./configure --target-list=x86_64-softmmu && sudo make clean && sudo make -j32 install && sudo chown -R rherna70:nros-PG0 . && cd $back"
+        },
+        {
+            "label" : "download and create bookworm image",
+            "type" : "shell",
+            "command" : "back=$(pwd) && cd /users/rherna70/code/ && mkdir -p image && cd image && echo 'implement me' && cd $back"
+        }
+    ]
+}
