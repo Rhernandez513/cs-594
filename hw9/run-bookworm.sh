@@ -17,4 +17,5 @@ sudo ${QEMU_BIN} \
         -net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:2222-:22 \
         -net nic,model=e1000 \
         -nographic \
-        -device my_rng
+        -device my_rng \
+        -device lkp_enc
