@@ -19,16 +19,13 @@ static long my_rng_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
     unsigned long num_bytes = 0;
 
     if(!devmem) {
-        printk("inside my_rng_ioctl\n");
         printk(KERN_ERR "Failed to map device registers in memory");
         return -1; // memory not accessible
     }
 
     switch (cmd) {
         case MY_RNG_IOCTL_RAND:
-            pr_info("Calling ioread32");
             data = (unsigned long) ioread32(devmem);
-            pr_info("Data from ioread32: %lu\n", data);
             num_bytes = copy_to_user((unsigned long *)arg, &data, sizeof(unsigned long));
             if(num_bytes != 0) {
                 pr_info("Failed to copy data to user space\n");
@@ -42,7 +39,6 @@ static long my_rng_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
                 pr_info("Failed to copy data from user space\n");
                 return -EFAULT;
             }
-            pr_info("Calling io write with data: %lu\n", data);
             iowrite32(data, devmem+4);
             break;
 

@@ -9,7 +9,7 @@
 
 typedef struct {
     PCIDevice parent_obj;
-    uint32_t seed_register;
+    uintptr_t seed_register;
     MemoryRegion mmio;
 } my_rng;
 
@@ -21,7 +21,7 @@ static uint64_t mmio_read(void *opaque, hwaddr addr, unsigned size) {
 
     rand_val = rand();
 
-    return (uint64_t) rand_val ;
+    return (uint64_t) rand_val;
 }
 
 static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
@@ -31,12 +31,14 @@ static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
     dev = (my_rng *)opaque;
 
     if (val <= INT_MAX) {
-        seed = (int) val;
+        seed = val;
     } else {
         seed = INT_MAX;
     }
 
-    srand(seed);
+    dev->seed_register = (uintptr_t) &seed;
+
+    srand((int) seed);
 
     return;
 }
