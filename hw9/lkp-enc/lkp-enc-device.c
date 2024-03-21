@@ -2,15 +2,16 @@
 #include "hw/pci/msi.h"
 #include "hw/pci/pci.h"
 #include <stdlib.h>
+#include <stdint.h>
 #include <limits.h>
 
-#define TYPE_MY_RNG "lkp_enc"
+#define TYPE_LKP_ENC "lkp_enc"
 #define LKP_ENC(obj) OBJECT_CHECK(lkp_enc, (obj), TYPE_LKP_ENC)
 
 typedef struct {
     PCIDevice parent_obj;
-    uint32_t seed_register;
-    uint32_t modulo_register;
+    uintptr_t seed_register;
+    uintptr_t modulo_register;
     MemoryRegion mmio;
 } lkp_enc;
 
@@ -36,6 +37,8 @@ static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
     } else {
         seed = INT_MAX;
     }
+
+    // seed_register = (uintptr_t)&seed;
 
     srand(seed);
 
