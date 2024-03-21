@@ -19,9 +19,9 @@
             "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task download_and_create_bookworm_image && cd $back"
         },
         {
-            "label" : "Build and run my-rng-app.c",
+            "label" : "Build jammy dev box",
             "type" : "shell",
-            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task download_and_create_bookworm_image && cd $back"
+            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task build_jammy_devbox && cd $back"
         }
     ]
 }
