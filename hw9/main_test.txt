@@ -1,6 +1,8 @@
-for /linux/init/main.c
-in the kernal_init function
-after the call to do_sysctl_args();
+/*
+ * for /linux/init/main.c
+ * in the kernal_init function
+ * after the call to do_sysctl_args();
+ */
 
 
 printk("------------------------------------------------------------------\n");
