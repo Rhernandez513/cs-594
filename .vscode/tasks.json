@@ -4,24 +4,24 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build linux",
             "type": "shell",
-            "command": "back=$(pwd) && cd /users/rherna70/code/linux-6.1.72/ && make clean && make defconfig && make -j32 && cd $back"
-        },
-        {
-            "label": "run",
-            "type": "shell",
-             "command" : "/users/rherna70/code/cs-594/hw9/run-bookworm.sh"
+            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task build_linux && cd $back"
         },
         {
             "label" : "build qemu",
             "type" : "shell",
-            "command" : "back=$(pwd) && cd /users/rherna70/code/qemu-8.2.1/ && ./configure --target-list=x86_64-softmmu && sudo make clean && sudo make -j32 install && sudo chown -R rherna70:nros-PG0 . && cd $back"
+            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task build_qemu && cd $back"
         },
         {
             "label" : "download and create bookworm image",
             "type" : "shell",
-            "command" : "back=$(pwd) && cd /users/rherna70/code/ && mkdir -p image && cd image && echo 'implement me' && cd $back"
+            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task download_and_create_bookworm_image && cd $back"
+        },
+        {
+            "label" : "Build and run my-rng-app.c",
+            "type" : "shell",
+            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task download_and_create_bookworm_image && cd $back"
         }
     ]
 }

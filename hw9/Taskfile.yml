@@ -1,15 +1,38 @@
 version: '3'
 
+dotenv: ['.env']
+
 tasks:
-  build:
-    cmds:
-      - make
-    silent: false
-  run:
-    cmds:
-      - echo "not yet implemented"
-    silent: false
-  clean:
+  build_linux:
+    dir: '{{.CODE_ROOT_DIR}}/linux-6.1.72/'
     cmds:
       - make clean
+      - make defconfig
+      - make -j32
+    silent: false
+  build_qemu:
+    dir: '{{.CODE_ROOT_DIR}}/qemu-8.2.1/'
+    cmds:
+      - . configure --target-list=x86_64-softmmu 
+      - sudo make clean 
+      - sudo make -j32 install 
+      - sudo chown -R $USER:$GROUP .
+    silent: false
+  download_and_create_bookworm_image:
+    cmds:
+      - task: download_image
+      - task: create_bookworm_image
+      - echo "Both tasks are done!"
+  download_image:
+    dir: '{{.CODE_ROOT_DIR}}'
+    cmds:
+      - rm -rf image_old
+      - mv image image_old
+      - mkdir -p image
+      - wget https://raw.githubusercontent.com/google/syzkaller/master/tools/create-image.sh -O image/create-image.sh 
+      - chmod +x image/create-image.sh 
+  create_bookworm_image:
+    dir: '{{.CODE_ROOT_DIR}}/image'
+    cmds:
+      - . create-image.sh --distribution bookworm
     silent: false
