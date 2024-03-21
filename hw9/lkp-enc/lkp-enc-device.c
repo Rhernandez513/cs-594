@@ -4,31 +4,32 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#define TYPE_MY_RNG "my_rng"
-#define MY_RNG(obj) OBJECT_CHECK(my_rng, (obj), TYPE_MY_RNG)
+#define TYPE_MY_RNG "lkp_enc"
+#define LKP_ENC(obj) OBJECT_CHECK(lkp_enc, (obj), TYPE_LKP_ENC)
 
 typedef struct {
     PCIDevice parent_obj;
     uint32_t seed_register;
+    uint32_t modulo_register;
     MemoryRegion mmio;
-} my_rng;
+} lkp_enc;
 
 static uint64_t mmio_read(void *opaque, hwaddr addr, unsigned size) {
     int rand_val;
-    my_rng *dev;
+    lkp_enc *dev;
 
-    dev = (my_rng *)opaque;
+    dev = (lkp_enc *)opaque;
 
     rand_val = rand();
 
-    return (uint64_t) rand_val ;
+    return (uint64_t) rand_val;
 }
 
 static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
     int seed;
-    my_rng *dev;
+    lkp_enc *dev;
 
-    dev = (my_rng *)opaque;
+    dev = (lkp_enc *)opaque;
 
     if (val <= INT_MAX) {
         seed = (int) val;
@@ -41,46 +42,46 @@ static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
     return;
 }
 
-static const MemoryRegionOps my_rng_ops = {
+static const MemoryRegionOps lkp_enc_ops = {
     .read = mmio_read,
     .write = mmio_write,
 };
 
-static void my_rng_realize(PCIDevice *pdev, Error **errp) {
-    my_rng *s = MY_RNG(pdev);
-    memory_region_init_io(&s->mmio, OBJECT(s), &my_rng_ops, s,
-                          "my-rng", 4096);
+static void lkp_enc_realize(PCIDevice *pdev, Error **errp) {
+    lkp_enc *s = LKP_ENC(pdev);
+    memory_region_init_io(&s->mmio, OBJECT(s), &lkp_enc_ops, s,
+                          "lkp-enc", 4096);
     pci_register_bar(&s->parent_obj, 0, PCI_BASE_ADDRESS_SPACE_MEMORY, &s->mmio);
 }
 
-static void my_rng_class_init(ObjectClass *class, void *data) {
+static void lkp_enc_class_init(ObjectClass *class, void *data) {
     DeviceClass *dc = DEVICE_CLASS(class);
     PCIDeviceClass *k = PCI_DEVICE_CLASS(class);
 
-    k->realize = my_rng_realize;
+    k->realize = lkp_enc_realize;
     k->vendor_id = PCI_VENDOR_ID_QEMU;
-    k->device_id = 0xcafe;
+    k->device_id = 0xbeef;
     k->revision = 0x10;
     k->class_id = PCI_CLASS_OTHERS;
 
     set_bit(DEVICE_CATEGORY_MISC, dc->categories);
 }
 
-static void my_rng_register_types(void) {
+static void lkp_enc_register_types(void) {
     static InterfaceInfo interfaces[] = {
         { INTERFACE_CONVENTIONAL_PCI_DEVICE },
         { },
     };
 
-    static const TypeInfo my_rng_info = {
-        .name = TYPE_MY_RNG,
+    static const TypeInfo lkp_enc_info = {
+        .name = TYPE_LKP_ENC,
         .parent = TYPE_PCI_DEVICE,
-        .instance_size = sizeof(my_rng),
-        .class_init = my_rng_class_init,
+        .instance_size = sizeof(lkp_enc),
+        .class_init = lkp_enc_class_init,
         .interfaces = interfaces,
     };
 
-    type_register_static(&my_rng_info);
+    type_register_static(&lkp_enc_info);
 }
 
-type_init(my_rng_register_types);
+type_init(lkp_enc_register_types);
