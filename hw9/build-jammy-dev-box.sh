@@ -42,7 +42,10 @@ sudo apt install -y build-essential git bc libelf-dev libssl-dev flex bison meso
 sudo apt upgrade -y --allow-downgrades
 sudo apt autoremove
 
+touch $HOME_DIR/.zshrc
 echo "export EDITOR=vi" >> $HOME_DIR/.zshrc
+
+touch $HOME_DIR/.vimrc
 echo "set number" >> $HOME_DIR/.vimrc
 echo "set cc=80" >> $HOME_DIR/.vimrc
 
