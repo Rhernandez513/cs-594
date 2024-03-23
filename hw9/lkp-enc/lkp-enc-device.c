@@ -29,27 +29,27 @@ static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
     dev = (lkp_enc *)opaque;
 
     // Set the buffer inside the device memory to the address of the value
-    // dev->buffer = (char *) &val;
+    // dev->buffer = (char *) val;
 
     // copy the contents of val to the buffer
-    snprintf(dev->buffer, size + 1, "%s", (char *)&val);
+    // snprintf(dev->buffer, size + 1, "%s", (char *) val);
 
     // create an iterator pointer to the buffer
-    ptr = dev->buffer;
+    // ptr = dev->buffer;
 
     // Loop through each character until the terminating character is reached
-    while (*ptr != '\0') {
-        // Check if the character is lowercase
-        if (islower(*ptr)) {
-            // If lowercase, convert to uppercase
-            *ptr = toupper(*ptr);
-        } else if (isupper(*ptr)) {
-            // If uppercase, convert to lowercase
-            *ptr = tolower(*ptr);
-        }
-        // Move to the next character in the buffer
-        ptr++;
-    }
+    // while (*ptr != '\0') {
+    //     // Check if the character is lowercase
+    //     if (islower(*ptr)) {
+    //         // If lowercase, convert to uppercase
+    //         *ptr = toupper(*ptr);
+    //     } else if (isupper(*ptr)) {
+    //         // If uppercase, convert to lowercase
+    //         *ptr = tolower(*ptr);
+    //     }
+    //     // Move to the next character in the buffer
+    //     ptr++;
+    // }
 
     return;
 }
