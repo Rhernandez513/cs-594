@@ -32,7 +32,7 @@ set +a
 
 # ZSH and Oh-My-ZSH
 sudo apt install -y tmux zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # For building QEMU from source
 sudo apt install -y build-essential git bc libelf-dev libssl-dev flex bison meson wget python3 python3-venv ninja-build pkg-config libglib2.0-dev libslirp-dev
@@ -41,12 +41,5 @@ sudo apt install -y build-essential git bc libelf-dev libssl-dev flex bison meso
 # Update packages and perform cleanup
 sudo apt upgrade -y --allow-downgrades
 sudo apt autoremove
-
-echo "export EDITOR=vi" >> $HOME_DIR/.zshrc
-echo "set number" >> $HOME_DIR/.vimrc
-echo "set cc=80" >> $HOME_DIR/.vimrc
-
-git config --global user.name "$GIT_AUTHOR_NAME"
-git config --global user.email "$GIT_AUTHOR_EMAIL"
 
 # EOF 
