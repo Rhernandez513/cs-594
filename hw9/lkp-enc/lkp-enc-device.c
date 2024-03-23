@@ -1,46 +1,55 @@
 #include "qemu/osdep.h"
 #include "hw/pci/msi.h"
 #include "hw/pci/pci.h"
-#include <stdlib.h>
-#include <stdint.h>
-#include <limits.h>
+#include <stdio.h>
+#include <ctype.h>
 
 #define TYPE_LKP_ENC "lkp_enc"
 #define LKP_ENC(obj) OBJECT_CHECK(lkp_enc, (obj), TYPE_LKP_ENC)
 
 typedef struct {
     PCIDevice parent_obj;
-    uintptr_t seed_register;
-    uintptr_t modulo_register;
+    char *buffer;
     MemoryRegion mmio;
 } lkp_enc;
 
 static uint64_t mmio_read(void *opaque, hwaddr addr, unsigned size) {
-    int rand_val;
     lkp_enc *dev;
-
     dev = (lkp_enc *)opaque;
 
-    rand_val = rand();
-
-    return (uint64_t) rand_val;
+     // Casting the buffer pointer to uint64_t and returning it
+    return (uint64_t)dev->buffer;
 }
 
 static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
-    int seed;
+    char *ptr;
     lkp_enc *dev;
 
+    // Cast the opaque pointer to lkp_enc
     dev = (lkp_enc *)opaque;
 
-    if (val <= INT_MAX) {
-        seed = (int) val;
-    } else {
-        seed = INT_MAX;
+    // Set the buffer inside the device memory to the address of the value
+    // dev->buffer = (char *) &val;
+
+    // copy the contents of val to the buffer
+    snprintf(dev->buffer, size + 1, "%s", (char *)&val);
+
+    // create an iterator pointer to the buffer
+    ptr = dev->buffer;
+
+    // Loop through each character until the terminating character is reached
+    while (*ptr != '\0') {
+        // Check if the character is lowercase
+        if (islower(*ptr)) {
+            // If lowercase, convert to uppercase
+            *ptr = toupper(*ptr);
+        } else if (isupper(*ptr)) {
+            // If uppercase, convert to lowercase
+            *ptr = tolower(*ptr);
+        }
+        // Move to the next character in the buffer
+        ptr++;
     }
-
-    // seed_register = (uintptr_t)&seed;
-
-    srand(seed);
 
     return;
 }
