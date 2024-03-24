@@ -15,6 +15,7 @@ typedef struct {
     MemoryRegion mmio;
 } lkp_enc;
 
+static char modify_char(int decimal, int modifier);
 
 static uint64_t mmio_read(void *opaque, hwaddr addr, unsigned size) {
     lkp_enc *dev;
@@ -26,7 +27,7 @@ static uint64_t mmio_read(void *opaque, hwaddr addr, unsigned size) {
 
     // Ensure that the address is within the bounds of the buffer
     if (addr < sizeof(dev->buffer)) {
-        // As we did not request the encryption key,
+        // As we are not attempting to read the encryption key,
         // we need to decrement the offset by 1
         --addr;
 
@@ -45,12 +46,24 @@ static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
     lkp_enc *dev;
     dev = (lkp_enc *)opaque;
 
+    if(addr == 0x0) {
+        dev->encryption_key = val;
+        return;
+    }
+
     // Ensure that the address is within the bounds of the buffer
     if (addr < sizeof(dev->buffer)) {
+        // As we are not attempting to write the encryption key,
+        // we need to decrement the offset by 1
+        --addr;
+
         // Calculate the offset within the buffer based on the address
         char *buffer_addr = dev->buffer + addr;
-        // Write the byte at the calculated offset
-        *buffer_addr = (char) val;
+
+        // Write unmodified byte at the calculated offset
+        // *buffer_addr = (char) val;
+
+        *buffer_addr = modify_char((int)val, (int) dev->encryption_key);
     }
 }
 
@@ -64,7 +77,6 @@ static void lkp_enc_realize(PCIDevice *pdev, Error **errp) {
     memory_region_init_io(&s->mmio, OBJECT(s), &lkp_enc_ops, s,
                           "lkp-enc", 4096);
     pci_register_bar(&s->parent_obj, 0, PCI_BASE_ADDRESS_SPACE_MEMORY, &s->mmio);
-    s->encryption_key = (uint64_t) 5;
 }
 
 static void lkp_enc_class_init(ObjectClass *class, void *data) {
@@ -95,6 +107,25 @@ static void lkp_enc_register_types(void) {
     };
 
     type_register_static(&lkp_enc_info);
+}
+
+static char modify_char(int decimal, int modifier) {
+    // Check if the decimal represents an uppercase letter
+    if (decimal >= 'A' && decimal <= 'Z') {
+        // Calculate the new decimal value with wrapping
+        int new_decimal = ((decimal - 'A' + modifier) % 26) + 'A';
+        return (char)new_decimal;
+    }
+    // Check if the decimal represents a lowercase letter
+    else if (decimal >= 'a' && decimal <= 'z') {
+        // Calculate the new decimal value with wrapping
+        int new_decimal = ((decimal - 'a' + modifier) % 26) + 'a';
+        return (char)new_decimal;
+    }
+    // Return the original character if not in alphabet
+    else {
+        return (char)decimal;
+    }
 }
 
 type_init(lkp_enc_register_types);

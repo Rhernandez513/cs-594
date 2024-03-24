@@ -14,14 +14,16 @@ printk("------------------------------------------------------------------\n");
 // present may be different on your computer, use lspci -v in the VM to
 // find it
 devmem = ioremap(0xfebf2000, 4096);
-strdata_lkpenc = "Hello, this is a test string for LKP-ENC";
-
-printk("strdata_lkpenc: %s\n", strdata_lkpenc);
+strdata_lkpenc = "Hello World, this is a test string for LKP-ENC";
 
 if(devmem) {
+
+    iowrite32(2, devmem);
+
     i = 0;
     while(strdata_lkpenc[i] != '\0') {
-        iowrite32((int) strdata_lkpenc[i], devmem+i);
+        // We start from 1 as the first byte is the encryption key
+        iowrite32((int) strdata_lkpenc[i], (devmem + i + 1));
         i++;
     }
 
