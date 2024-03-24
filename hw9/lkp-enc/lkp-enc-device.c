@@ -60,9 +60,6 @@ static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
         // Calculate the offset within the buffer based on the address
         char *buffer_addr = dev->buffer + addr;
 
-        // Write unmodified byte at the calculated offset
-        // *buffer_addr = (char) val;
-
         *buffer_addr = modify_char((int)val, (int) dev->encryption_key);
     }
 }

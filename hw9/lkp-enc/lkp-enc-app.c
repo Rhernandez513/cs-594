@@ -6,6 +6,8 @@
 #define RAND_IOCTL	0x80047101
 #define SEED_IOCTL	0x40047101
 
+#define MAX_LKP_ENC_BUFFER_SIZE 128
+
 int main() {
     int fd = open("/dev/my_rng_driver", O_RDWR);
     if (fd < 0) {
