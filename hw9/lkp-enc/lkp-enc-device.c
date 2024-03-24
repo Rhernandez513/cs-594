@@ -6,10 +6,12 @@
 
 #define TYPE_LKP_ENC "lkp_enc"
 #define LKP_ENC(obj) OBJECT_CHECK(lkp_enc, (obj), TYPE_LKP_ENC)
+#define MAX_LKP_ENC_BUFFER_SIZE 128
 
 typedef struct {
     PCIDevice parent_obj;
-    char buffer[128];
+    uint64_t encryption_key;
+    char buffer[MAX_LKP_ENC_BUFFER_SIZE];
     MemoryRegion mmio;
 } lkp_enc;
 
@@ -18,21 +20,28 @@ static uint64_t mmio_read(void *opaque, hwaddr addr, unsigned size) {
     lkp_enc *dev;
     dev = (lkp_enc *)opaque;
 
+    if(addr == 0x0) {
+        return dev->encryption_key;
+    }
+
     // Ensure that the address is within the bounds of the buffer
     if (addr < sizeof(dev->buffer)) {
+        // As we did not request the encryption key,
+        // we need to decrement the offset by 1
+        --addr;
+
         // Calculate the offset within the buffer based on the address
         char *buffer_addr = dev->buffer + addr;
 
         // Return the byte at the calculated offset
         return *buffer_addr;
-    } else {
-        // Handle out-of-bounds access, for now, returning 0
-        return 0;
     }
+
+    // Handle out-of-bounds access, for now, returning 0
+    return 0;
 }
 
 static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
-    char val_char;
     lkp_enc *dev;
     dev = (lkp_enc *)opaque;
 
@@ -40,19 +49,8 @@ static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
     if (addr < sizeof(dev->buffer)) {
         // Calculate the offset within the buffer based on the address
         char *buffer_addr = dev->buffer + addr;
-
-        val_char = (char) val;
-        // Check if the character is lowercase
-        if (islower(val_char)) {
-            // If lowercase, convert to uppercase
-            *buffer_addr = toupper(val_char);
-        } else if (isupper(val_char)) {
-            // If uppercase, convert to lowercase
-            *buffer_addr = tolower(val_char);
-        } else {
-            // If not a letter, write the value to the buffer
-            *buffer_addr = val_char;
-        }
+        // Write the byte at the calculated offset
+        *buffer_addr = (char) val;
     }
 }
 
@@ -66,6 +64,7 @@ static void lkp_enc_realize(PCIDevice *pdev, Error **errp) {
     memory_region_init_io(&s->mmio, OBJECT(s), &lkp_enc_ops, s,
                           "lkp-enc", 4096);
     pci_register_bar(&s->parent_obj, 0, PCI_BASE_ADDRESS_SPACE_MEMORY, &s->mmio);
+    s->encryption_key = (uint64_t) 5;
 }
 
 static void lkp_enc_class_init(ObjectClass *class, void *data) {

@@ -25,7 +25,11 @@ if(devmem) {
         i++;
     }
 
-    i = 0;
+    data = ioread32(devmem);
+    printk("encryption key returned from ioread32 as int: %u", data);
+
+    // We start from 1 as the first byte is the encryption key
+    i = 1;
     while ((char) data != '\0') {
         data = ioread32(devmem+i);
         printk("data returned from ioread32 as char: %c\n", (char) data);
@@ -38,4 +42,3 @@ if(devmem) {
 printk("------------------------------------------------------------------\n");
 printk("END LKP-ENC TEST\n");
 printk("------------------------------------------------------------------\n");
-
