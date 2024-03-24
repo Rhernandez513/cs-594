@@ -1,3 +1,4 @@
+/*
  * for /linux/init/main.c
  * in the kernal_init function
  * after the call to do_sysctl_args();
@@ -17,17 +18,19 @@ strdata_lkpenc = "Hello, this is a test string for LKP-ENC";
 
 printk("strdata_lkpenc: %s\n", strdata_lkpenc);
 
-str_data_ptr = (unsigned long)strdata_lkpenc;
-
-printk("str_data_ptr before calling io string was: %s\n", (char *) str_data_ptr);
-
 if(devmem) {
-    printk("calling iowrite, str_data_ptr as unsigned long: %lu\n", str_data_ptr);
-    iowrite32(str_data_ptr, devmem+4);
-    printk("calling ioread32 and attempting to store what should be an unsigned int in an unsigned long\n");
-    str_data_ptr = ioread32(devmem);
-    printk("str_data_ptr as unsigned long after calling io string was: %lu\n", str_data_ptr);
-    printk("New string was: %s\n", (char *) str_data_ptr);
+    i = 0;
+    while(strdata_lkpenc[i] != '\0') {
+        iowrite32((int) strdata_lkpenc[i], devmem+i);
+        i++;
+    }
+
+    i = 0;
+    while ((char) data != '\0') {
+        data = ioread32(devmem+i);
+        printk("data returned from ioread32 as char: %c\n", (char) data);
+        i++;
+    }
 } else {
     printk("ERROR: cannot map device registers\n");
 }
@@ -35,3 +38,4 @@ if(devmem) {
 printk("------------------------------------------------------------------\n");
 printk("END LKP-ENC TEST\n");
 printk("------------------------------------------------------------------\n");
+

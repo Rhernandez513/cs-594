@@ -1,57 +1,59 @@
 #include "qemu/osdep.h"
 #include "hw/pci/msi.h"
 #include "hw/pci/pci.h"
-#include <stdio.h>
 #include <ctype.h>
+#include <stdint.h>
 
 #define TYPE_LKP_ENC "lkp_enc"
 #define LKP_ENC(obj) OBJECT_CHECK(lkp_enc, (obj), TYPE_LKP_ENC)
 
 typedef struct {
     PCIDevice parent_obj;
-    char *buffer;
+    char buffer[128];
     MemoryRegion mmio;
 } lkp_enc;
+
 
 static uint64_t mmio_read(void *opaque, hwaddr addr, unsigned size) {
     lkp_enc *dev;
     dev = (lkp_enc *)opaque;
 
-     // Casting the buffer pointer to uint64_t and returning it
-    return (uint64_t)dev->buffer;
+    // Ensure that the address is within the bounds of the buffer
+    if (addr < sizeof(dev->buffer)) {
+        // Calculate the offset within the buffer based on the address
+        char *buffer_addr = dev->buffer + addr;
+
+        // Return the byte at the calculated offset
+        return *buffer_addr;
+    } else {
+        // Handle out-of-bounds access, for now, returning 0
+        return 0;
+    }
 }
 
 static void mmio_write(void *opaque, hwaddr addr, uint64_t val, unsigned size) {
-    char *ptr;
+    char val_char;
     lkp_enc *dev;
-
-    // Cast the opaque pointer to lkp_enc
     dev = (lkp_enc *)opaque;
 
-    // Set the buffer inside the device memory to the address of the value
-    // dev->buffer = (char *) val;
+    // Ensure that the address is within the bounds of the buffer
+    if (addr < sizeof(dev->buffer)) {
+        // Calculate the offset within the buffer based on the address
+        char *buffer_addr = dev->buffer + addr;
 
-    // copy the contents of val to the buffer
-    // snprintf(dev->buffer, size + 1, "%s", (char *) val);
-
-    // create an iterator pointer to the buffer
-    // ptr = dev->buffer;
-
-    // Loop through each character until the terminating character is reached
-    // while (*ptr != '\0') {
-    //     // Check if the character is lowercase
-    //     if (islower(*ptr)) {
-    //         // If lowercase, convert to uppercase
-    //         *ptr = toupper(*ptr);
-    //     } else if (isupper(*ptr)) {
-    //         // If uppercase, convert to lowercase
-    //         *ptr = tolower(*ptr);
-    //     }
-    //     // Move to the next character in the buffer
-    //     ptr++;
-    // }
-
-    return;
+        val_char = (char) val;
+        // Check if the character is lowercase
+        if (islower(val_char)) {
+            // If lowercase, convert to uppercase
+            *buffer_addr = toupper(val_char);
+        } else if (isupper(val_char)) {
+            // If uppercase, convert to lowercase
+            *buffer_addr = tolower(val_char);
+        } else {
+            // If not a letter, write the value to the buffer
+            *buffer_addr = val_char;
+        }
+    }
 }
 
 static const MemoryRegionOps lkp_enc_ops = {
