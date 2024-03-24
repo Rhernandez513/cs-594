@@ -25,6 +25,9 @@ sudo apt install -y qemu-system-x86 debootstrap
 sudo apt install -y linux-headers-$(uname -r)
 sudo apt install -y linux-source
 
+# For building QEMU from source
+sudo apt install -y build-essential git bc libelf-dev libssl-dev flex bison meson wget python3 python3-venv ninja-build pkg-config libglib2.0-dev libslirp-dev
+
 # source env vars
 set -a
 source .env
@@ -32,15 +35,18 @@ set +a
 
 # ZSH and Oh-My-ZSH
 sudo apt install -y tmux zsh
-# sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-# For building QEMU from source
-sudo apt install -y build-essential git bc libelf-dev libssl-dev flex bison meson wget python3 python3-venv ninja-build pkg-config libglib2.0-dev libslirp-dev
+
+# Quality of life
+sudo apt install -y htop
 
 
 # Update packages and perform cleanup
 sudo apt upgrade -y --allow-downgrades
 sudo apt autoremove
+
+
+echo 'next, run interactively to install Oh-My-ZSH: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
 
 # EOF 
 
