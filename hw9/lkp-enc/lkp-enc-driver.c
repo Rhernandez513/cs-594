@@ -14,22 +14,67 @@
 
 #define DEVICE_BASE_PHYS_ADDR 0xfebf2000
 
+#define MAX_LKP_ENC_BUFFER_SIZE 128
+
 void *lkp_enc_devmem = 0x0;
+unsigned long lkp_enc_data = 0;
+char str_data [MAX_LKP_ENC_BUFFER_SIZE];
 
 static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
+    int i = 0;
+    unsigned long num_bytes = 0;
 
     switch (cmd) {
         
         case LKP_ENC_IOCTL_RKEY :
+            lkp_enc_data = (unsigned long) ioread32(lkp_enc_devmem);
+            printk("lkp_enc_data from ioread32 as unsigned long: %lu", lkp_enc_data);
+
+            num_bytes = copy_to_user((unsigned long *)arg, &lkp_enc_data, sizeof(unsigned long));
+            if(num_bytes != 0) {
+                pr_info("Failed to copy data to user space\n");
+                return -EFAULT;
+            }
             break;
 
         case LKP_ENC_IOCTL_WKEY :
+            num_bytes = copy_from_user(&lkp_enc_data, (unsigned long *)arg, sizeof(unsigned long));
+            if(num_bytes != 0) {
+                pr_info("Failed to copy data from user space\n");
+                return -EFAULT;
+            }
+            iowrite32(lkp_enc_data, lkp_enc_devmem);
             break;
 
         case LKP_ENC_IOCTL_RCH :
+            // We start from 1 as the first byte is the encryption key
+            i = 1;
+            while ((char) lkp_enc_data != '\0') {
+                lkp_enc_data = ioread32(lkp_enc_devmem+i);
+                printk("data returned from ioread32 as char: %c\n", (char) lkp_enc_data);
+                str_data[i-1] = (char) lkp_enc_data;
+                i++;
+            }
+
+            num_bytes = copy_to_user((char *)arg, str_data, sizeof(str_data));
+            if (num_bytes != 0) {
+                pr_info("Failed to copy data to user space\n");
+                return -EFAULT;
+            }
             break;
 
         case LKP_ENC_IOCTL_WCH :
+            num_bytes = copy_from_user(str_data, (char *)arg, sizeof(str_data));
+            if(num_bytes != 0) {
+                pr_info("Failed to copy data from user space\n");
+                return -EFAULT;
+            }
+            i = 0;
+            while(str_data[i] != '\0') {
+                // We start from 1 as the first byte is the encryption key
+                iowrite32((int) str_data[i], (lkp_enc_devmem + i + 1));
+                i++;
+            }
             break;
 
         default:
