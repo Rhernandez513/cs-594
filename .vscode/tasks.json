@@ -6,22 +6,44 @@
         {
             "label": "build linux",
             "type": "shell",
-            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task build_linux && cd $back"
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task build_linux",
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
-            "label" : "build qemu",
-            "type" : "shell",
-            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task build_qemu && cd $back"
+            "label": "clean build linux",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task clean_build_linux",
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
-            "label" : "download and create bookworm image",
-            "type" : "shell",
-            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task download_and_create_bookworm_image && cd $back"
+            "label": "build qemu",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task build_qemu",
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
-            "label" : "Build jammy dev box",
-            "type" : "shell",
-            "command": "back=$(pwd) && cd /users/rherna70/code/cs-594/hw9 && task build_jammy_devbox && cd $back"
+            "label": "clean build qemu",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task clean_build_qemu",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "download and create bookworm image",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task download_and_create_bookworm_image"
+        },
+        {
+            "label": "Build jammy dev box",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task build_jammy_devbox"
         }
     ]
 }
