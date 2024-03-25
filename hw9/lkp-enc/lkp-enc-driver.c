@@ -24,12 +24,11 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
     int i = 0;
     unsigned long num_bytes = 0;
 
+    pr_info("lkp_enc_ioctl: cmd: %d\n", cmd);
     switch (cmd) {
         
         case LKP_ENC_IOCTL_RKEY :
             lkp_enc_data = (unsigned long) ioread32(lkp_enc_devmem);
-            printk("lkp_enc_data from ioread32 as unsigned long: %lu", lkp_enc_data);
-
             num_bytes = copy_to_user((unsigned long *)arg, &lkp_enc_data, sizeof(unsigned long));
             if(num_bytes != 0) {
                 pr_info("Failed to copy data to user space\n");
@@ -38,11 +37,13 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             break;
 
         case LKP_ENC_IOCTL_WKEY :
+            pr_info("copying data from userspace");
             num_bytes = copy_from_user(&lkp_enc_data, (unsigned long *)arg, sizeof(unsigned long));
             if(num_bytes != 0) {
                 pr_info("Failed to copy data from user space\n");
                 return -EFAULT;
             }
+            pr_info("writing data to device");
             iowrite32(lkp_enc_data, lkp_enc_devmem);
             break;
 
