@@ -1,0 +1,44 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - make
+    silent: false
+  run:
+    cmds:
+      - cat /proc/perftop
+    silent: false
+  run_pick_next_task_fair:
+    cmds:
+      - sudo insmod kprobe_pick_next_task_fair.ko
+      - sudo insmod kretprobe_pick_next_task_fair.ko
+      - echo "hello from task runner"
+      - cat /proc/perftop > perftop_pick_next_task_fair.log
+      - cat /proc/perftop > perftop_pick_next_task_fair.log
+      - sudo rmmod kprobe_pick_next_task_fair
+      - sudo rmmod kretprobe_pick_next_task_fair
+      - dmesg > dmesg_pick_next_task_fair.log
+    silent: false
+  load_rbtree:
+    cmds:
+      - sudo insmod rbtree.ko
+    silent: false
+  unload_rbtree:
+    cmds:
+      - sudo rmmod rbtree
+    silent: false
+  load_perftop:
+    cmds:
+      - sudo insmod kprobe_stack_trace_save.ko
+      - sudo insmod kretprobe_perftop_show.ko
+    silent: false
+  unload_perftop:
+    cmds:
+      - sudo rmmod kprobe_stack_trace_save
+      - sudo rmmod kretprobe_perftop_show
+    silent: false
+  clean:
+    cmds:
+      - make clean
+    silent: false

@@ -1,0 +1,49 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build linux",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task build_linux",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "clean build linux",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task clean_build_linux",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "build qemu",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task build_qemu",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "clean build qemu",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task clean_build_qemu",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "download and create bookworm image",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task download_and_create_bookworm_image"
+        },
+        {
+            "label": "Build jammy dev box",
+            "type": "shell",
+            "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task build_jammy_devbox"
+        }
+    ]
+}

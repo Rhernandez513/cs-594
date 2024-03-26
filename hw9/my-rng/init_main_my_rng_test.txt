@@ -1,0 +1,38 @@
+/*
+ * for /linux/init/main.c
+ * in the kernal_init function
+ * after the call to do_sysctl_args();
+ */
+
+
+printk("------------------------------------------------------------------\n");
+printk("BEGIN MY-RNG TEST\n");
+printk("------------------------------------------------------------------\n");
+
+// Map the area of physical memory corresponding to the device's registers
+// (starting 0xfebf1000, size 4KB) somewhere in virtual memory at address
+// devmem. Notice that the physical memory where the device's registers are
+// present may be different on your computer, use lspci -v in the VM to
+// find it
+void *devmem = ioremap(0xfebf1000, 4096);
+unsigned int data = 0x0;
+if(devmem) {
+    for(int i=0; i<2; i++) {
+        // seed with 0x42 by writing that value in the seed register which
+        // is located at base address + 4 bytes
+        iowrite32(0x42, devmem+4);
+
+        // obtain and print 5 random numbers by reading the relevant
+        // register located at base address + 0
+        for(int j=0; j<5; j++) {
+            data = ioread32(devmem);
+            printk("Round %d number %d: %u", i, j, data);
+        }
+    }
+} else {
+    printk("ERROR: cannot map device registers\n");
+}
+
+printk("------------------------------------------------------------------\n");
+printk("END MY-RNG TEST\n");
+printk("------------------------------------------------------------------\n");

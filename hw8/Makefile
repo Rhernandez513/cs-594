@@ -8,6 +8,9 @@
 ifneq ($(KERNELRELEASE),)
 obj-m += kprobe_stack_trace_save.o
 obj-m += kretprobe_perftop_show.o
+obj-m += kprobe_pick_next_task_fair.o
+obj-m += kretprobe_pick_next_task_fair.o
+obj-m += rbtree.o
 
 else
 KDIR := /lib/modules/$(shell uname -r)/build
@@ -18,4 +21,4 @@ default:
 endif
 
 clean:
-	rm *.ko *.mod modules.order .kprobe_stack_trace_save.o.d
+	rm *.ko *.mod modules.order
