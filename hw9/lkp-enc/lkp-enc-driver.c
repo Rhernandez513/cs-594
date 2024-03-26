@@ -5,6 +5,7 @@
 #include <linux/fs.h>
 #include <linux/uaccess.h>
 #include <linux/io.h>
+#include <linux/spinlock.h>
 
 #define LKP_ENC_IOCTL_RKEY _IOR('q', 1, unsigned int)
 #define LKP_ENC_IOCTL_WKEY _IOW('q', 1, unsigned int)
@@ -16,15 +17,20 @@
 
 #define MAX_LKP_ENC_BUFFER_SIZE 128
 
+static spinlock_t my_lock;
+
 void *lkp_enc_devmem = 0x0;
 unsigned long lkp_enc_data = 0;
 char str_data [MAX_LKP_ENC_BUFFER_SIZE];
 
+
 static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
     int i = 0;
     unsigned long num_bytes = 0;
+    unsigned long flags;
 
     pr_info("lkp_enc_ioctl: cmd: %d\n", cmd);
+    spin_lock_irqsave(&my_lock, flags);
     switch (cmd) {
         
         case LKP_ENC_IOCTL_RKEY :
@@ -32,6 +38,7 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             num_bytes = copy_to_user((unsigned long *)arg, &lkp_enc_data, sizeof(unsigned long));
             if(num_bytes != 0) {
                 pr_info("Failed to copy data to user space\n");
+                spin_unlock_irqrestore(&my_lock, flags);
                 return -EFAULT;
             }
             break;
@@ -41,6 +48,7 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             num_bytes = copy_from_user(&lkp_enc_data, (unsigned long *)arg, sizeof(unsigned long));
             if(num_bytes != 0) {
                 pr_info("Failed to copy data from user space\n");
+                spin_unlock_irqrestore(&my_lock, flags);
                 return -EFAULT;
             }
             pr_info("writing data to device");
@@ -60,6 +68,7 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             num_bytes = copy_to_user((char *)arg, str_data, sizeof(str_data));
             if (num_bytes != 0) {
                 pr_info("Failed to copy data to user space\n");
+                spin_unlock_irqrestore(&my_lock, flags);
                 return -EFAULT;
             }
             break;
@@ -68,6 +77,7 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             num_bytes = copy_from_user(str_data, (char *)arg, sizeof(str_data));
             if(num_bytes != 0) {
                 pr_info("Failed to copy data from user space\n");
+                spin_unlock_irqrestore(&my_lock, flags);
                 return -EFAULT;
             }
             i = 0;
@@ -79,9 +89,11 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             break;
 
         default:
+            spin_unlock_irqrestore(&my_lock, flags);
             return -ENOTTY; // unknown command
     }
 
+    spin_unlock_irqrestore(&my_lock, flags);
     return 0;
 }
 
@@ -90,6 +102,9 @@ static struct file_operations lkp_enc_fops = {
 };
 
 static int __init lkp_enc_driver_init(void) {
+    // Initialize spinlock
+    spin_lock_init(&my_lock);
+
     lkp_enc_devmem = ioremap(DEVICE_BASE_PHYS_ADDR, 4096);
 
     if(!lkp_enc_devmem) {
