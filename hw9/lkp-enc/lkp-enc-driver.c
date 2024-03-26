@@ -47,7 +47,7 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             break;
 
         case LKP_ENC_IOCTL_WKEY :
-            pr_info("IN LKP_ENC_IOCTL_RKEY, writing data to device\n");
+            pr_info("IN LKP_ENC_IOCTL_WKEY, writing data to device\n");
             pr_info("copying data from userspace");
             num_bytes = copy_from_user(&lkp_enc_data, (unsigned long *)arg, sizeof(unsigned long));
             if(num_bytes != 0) {
