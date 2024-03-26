@@ -8,10 +8,10 @@
 #include <linux/spinlock.h>
 
 #define LKP_ENC_IOCTL_RKEY _IOR('q', 1, unsigned int)
-#define LKP_ENC_IOCTL_WKEY _IOW('q', 1, unsigned int)
+#define LKP_ENC_IOCTL_WKEY _IOW('q', 2, unsigned int)
 
-#define LKP_ENC_IOCTL_RCH _IOR('q', 2, unsigned int)
-#define LKP_ENC_IOCTL_WCH _IOW('q', 2, unsigned int)
+#define LKP_ENC_IOCTL_RCH _IOR('q', 3, unsigned int)
+#define LKP_ENC_IOCTL_WCH _IOW('q', 4, unsigned int)
 
 #define DEVICE_BASE_PHYS_ADDR 0xfebf2000
 
@@ -23,18 +23,21 @@ void *lkp_enc_devmem = 0x0;
 unsigned long lkp_enc_data = 0;
 char str_data [MAX_LKP_ENC_BUFFER_SIZE];
 
-
 static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
     int i = 0;
     unsigned long num_bytes = 0;
     unsigned long flags;
 
-    pr_info("lkp_enc_ioctl: cmd: %d\n", cmd);
+    while(spin_is_locked(&my_lock)) {
+        // wait
+    }
     spin_lock_irqsave(&my_lock, flags);
     switch (cmd) {
         
         case LKP_ENC_IOCTL_RKEY :
+            pr_info("IN LKP_ENC_IOCTL_RKEY, reading data from device\n");
             lkp_enc_data = (unsigned long) ioread32(lkp_enc_devmem);
+            pr_info("copying data to userspace");
             num_bytes = copy_to_user((unsigned long *)arg, &lkp_enc_data, sizeof(unsigned long));
             if(num_bytes != 0) {
                 pr_info("Failed to copy data to user space\n");
@@ -44,6 +47,7 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             break;
 
         case LKP_ENC_IOCTL_WKEY :
+            pr_info("IN LKP_ENC_IOCTL_RKEY, writing data to device\n");
             pr_info("copying data from userspace");
             num_bytes = copy_from_user(&lkp_enc_data, (unsigned long *)arg, sizeof(unsigned long));
             if(num_bytes != 0) {
@@ -56,15 +60,17 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             break;
 
         case LKP_ENC_IOCTL_RCH :
+            pr_info("IN LKP_ENC_IOCTL_RCH, reading data from device\n");
             // We start from 1 as the first byte is the encryption key
             i = 1;
             while ((char) lkp_enc_data != '\0') {
                 lkp_enc_data = ioread32(lkp_enc_devmem+i);
-                printk("data returned from ioread32 as char: %c\n", (char) lkp_enc_data);
+                pr_info("data returned from ioread32 as char: %c\n", (char) lkp_enc_data);
                 str_data[i-1] = (char) lkp_enc_data;
                 i++;
             }
 
+            pr_info("copying data to userspace");
             num_bytes = copy_to_user((char *)arg, str_data, sizeof(str_data));
             if (num_bytes != 0) {
                 pr_info("Failed to copy data to user space\n");
@@ -74,6 +80,8 @@ static long lkp_enc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             break;
 
         case LKP_ENC_IOCTL_WCH :
+            pr_info("IN LKP_ENC_IOCTL_WCH, writing data to device\n");
+            pr_info("copying data from userspace");
             num_bytes = copy_from_user(str_data, (char *)arg, sizeof(str_data));
             if(num_bytes != 0) {
                 pr_info("Failed to copy data from user space\n");
@@ -108,20 +116,20 @@ static int __init lkp_enc_driver_init(void) {
     lkp_enc_devmem = ioremap(DEVICE_BASE_PHYS_ADDR, 4096);
 
     if(!lkp_enc_devmem) {
-        printk(KERN_ERR "Failed to map device registers in memory");
+        pr_err("Failed to map device registers in memory\n");
         return -1;
     }
 
     if (register_chrdev(250, "lkp_enc_driver", &lkp_enc_fops) < 0) {
-        printk(KERN_ERR "Failed to register lkp_enc_driver\n");
+        pr_err("Failed to register lkp_enc_driver\n");
         return -1;
     }
 
-    printk("lkp_enc_driver loaded, registered ioctls 0x%lx (get enc key "
+    pr_info("lkp_enc_driver loaded, registered ioctls 0x%lx (get enc key "
         ") and 0x%lx (write enc key) \n", LKP_ENC_IOCTL_RKEY,
         LKP_ENC_IOCTL_WKEY);
 
-    printk("lkp_enc_driver loaded, registered ioctls 0x%lx (get chars "
+    pr_info("lkp_enc_driver loaded, registered ioctls 0x%lx (get chars "
         ") and 0x%lx (write chars) \n", LKP_ENC_IOCTL_RCH,
         LKP_ENC_IOCTL_WCH);
     return 0;
@@ -133,7 +141,7 @@ static void __exit lkp_enc_driver_exit(void) {
     if(lkp_enc_devmem)
         iounmap(lkp_enc_devmem);
 
-    printk(KERN_INFO "lkp_enc_driver unloaded\n");
+    pr_info("lkp_enc_driver unloaded\n");
 }
 
 module_init(lkp_enc_driver_init);
