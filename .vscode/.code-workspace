@@ -1,16 +1,188 @@
 {
     "folders": [
         {
-            "path": "/users/rherna70/code/cs-594"
+            "path": "../../code/cs-594"
         },
         {
-            "path": "/users/rherna70/code/linux-6.1.72"
+            "path": "../../code/linux-6.1.72"
         },
         {
-            "path": "/users/rherna70/code/qemu-8.2.1"
+            "path": "../../code/qemu-8.2.1"
         },
         {
-            "path": "/users/rherna70/code/image"
+            "path": "../../code/image"
         }
-    ]
+    ],
+    "settings": {
+        "files.associations": {
+            "*.c": "c",
+            "*.h": "c",
+            "__locale": "c",
+            "__threading_support": "c",
+            "bitset": "c",
+            "optional": "c",
+            "string": "c",
+            "string_view": "c",
+            "system_error": "c",
+            "thread": "c",
+            "variant": "c",
+            "vector": "c",
+            "memory": "c"
+        },
+        "[c]": {
+            "editor.wordBasedSuggestions": "off",
+            "editor.suggest.insertMode": "replace",
+            "editor.semanticHighlighting.enabled": true
+        },
+        "[makefile]": {
+            "editor.insertSpaces": false
+        },
+        "[markdown]": {
+            "editor.unicodeHighlight.ambiguousCharacters": false,
+            "editor.unicodeHighlight.invisibleCharacters": false,
+            "diffEditor.ignoreTrimWhitespace": false,
+            "editor.wordWrap": "on",
+            "editor.quickSuggestions": {
+                "comments": "off",
+                "strings": "off",
+                "other": "off"
+            }
+        },
+        "[yaml]": {
+            "editor.insertSpaces": true,
+            "editor.tabSize": 2,
+            "editor.autoIndent": "advanced",
+            "diffEditor.ignoreTrimWhitespace": false
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "GitHub.copilot",
+            "ms-vscode.makefile-tools",
+            "ms-vscode.cpptools-extension-pack",
+            "ms-vscode-remote.remote-ssh",
+            "ms-vscode-remote.remote-ssh-edit",
+            "DavidAnson.vscode-markdownlint",
+            "tomoki1207.pdf",
+            "yzhang.markdown-all-in-one"
+        ],
+        "unwantedRecommendations": [
+            "ms-vscode.cmake-tools",
+            "visualstudioexptteam.vscodeintellicode",
+        ]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "compounds": [
+            // {
+            //     "name": "Launch App and Attach LLDB",
+            //     "configurations": ["Launch"]
+            // }
+        ],
+        "configurations": [
+            {
+                "type": "cppdbg",
+                "request": "launch",
+                "envFile": "${workspaceFolder}/.env",
+                "name" : "Launch",
+                "environment": [
+                    {
+                        "name": "EXAMPLE_VAR",
+                        "value": "examplevalue"
+                    }
+                ],
+                "program": "${workspaceRoot}/a.out",
+                "args": ["arg1", "arg2"],
+                "linux": {
+                    "MIMode": "lldb",
+                    "miDebuggerPath": "/usr/bin/lldb"
+                }
+            }
+        ]
+    },
+    "tasks": {
+        // See https://go.microsoft.com/fwlink/?LinkId=733558
+        // for the documentation about the tasks.json format
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "build linux",
+                "type": "shell",
+                "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task build_linux",
+                "problemMatcher": [
+                    "$gcc"
+                ],
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared",
+                    "showReuseMessage": true,
+                    "clear": false
+                },
+                "group": "build"
+            },
+            {
+                "label": "clean build linux",
+                "type": "shell",
+                "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task clean_build_linux",
+                "problemMatcher": [
+                    "$gcc"
+                ],
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared",
+                    "showReuseMessage": true,
+                    "clear": false
+                },
+                "group": "build"
+            },
+            {
+                "label": "build qemu",
+                "type": "shell",
+                "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task build_qemu",
+                "problemMatcher": [
+                    "$gcc"
+                ],
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared",
+                    "showReuseMessage": true,
+                    "clear": false
+                },
+                "group": "build"
+            },
+            {
+                "label": "clean build qemu",
+                "type": "shell",
+                "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task clean_build_qemu",
+                "problemMatcher": [
+                    "$gcc"
+                ],
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared",
+                    "showReuseMessage": true,
+                    "clear": false
+                },
+                "group": "build"
+            },
+            {
+                "label": "download and create bookworm image",
+                "type": "shell",
+                "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task download_and_create_bookworm_image"
+            },
+            {
+                "label": "Build jammy dev box",
+                "type": "shell",
+                "command": "cd /proj/nros-PG0/rherna70/code/cs-594/hw9 && task build_jammy_devbox"
+            }
+        ]
+    }
 }
