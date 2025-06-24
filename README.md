@@ -1,6 +1,6 @@
 # CS 594 Adv. Linux Kernel Programming at the University of Illinois at Chicago
 
-Also see Final Project Repository: Implementing a Linux Kernel Driver in Rust <https://github.com/Rhernandez513/linux-driver-in-rust>
+Also see Final Project Repository: **Implementing a Linux Kernel Driver in Rust** <https://github.com/Rhernandez513/linux-driver-in-rust>
 
 _This course dives into the inner workings of the Linux kernel, offering a comprehensive exploration of its architecture, design principles, and advanced programming techniques. **Designed for graduate-level students**, it focuses on building a solid foundation in kernel development while tackling topics such as kernel modules, system calls, kernel data structures, process and scheduling, interrupt, synchronization and concurrency, device drivers and virtualization, memory management, and virtual file system._
 
