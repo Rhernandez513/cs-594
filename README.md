@@ -1,8 +1,8 @@
 # CS 594 Linux Kernel Programming at the University of Illinois at Chicago
 
-_This course dives into the inner workings of the Linux kernel, offering a comprehensive exploration of its architecture, design principles, and advanced programming techniques. Designed for graduate-level students, it focuses on building a solid foundation in kernel development while tackling topics such as kernel modules, system calls, kernel data structures, process and scheduling, interrupt, synchronization and concurrency, device drivers and virtualization, memory management, and virtual file system.
+_This course dives into the inner workings of the Linux kernel, offering a comprehensive exploration of its architecture, design principles, and advanced programming techniques. Designed for graduate-level students, it focuses on building a solid foundation in kernel development while tackling topics such as kernel modules, system calls, kernel data structures, process and scheduling, interrupt, synchronization and concurrency, device drivers and virtualization, memory management, and virtual file system._
 
-Through hands-on assignments and paper reading, students will gain practical experience in modifying and extending the Linux kernel, preparing them for cutting-edge research and development in operating systems and low-level programming. Join us to master the art of Linux kernel programming!_
+_Through hands-on assignments and paper reading, students will gain practical experience in modifying and extending the Linux kernel, preparing them for cutting-edge research and development in operating systems and low-level programming. Join us to master the art of Linux kernel programming!_
 
 ```c
 // C18 standard
